@@ -2,8 +2,8 @@ import { Link, NavLink } from 'react-router-dom';
 
 const Header = () => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div className="container-fluid">
+    <nav className="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+      <div className="container">
         <Link to="/customers" className="navbar-brand">
           Customer Library
         </Link>

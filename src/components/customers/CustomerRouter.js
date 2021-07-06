@@ -10,8 +10,9 @@ function CustomerRouter({ match }) {
   return (
     <Switch>
       <Route exact path={path} component={CustomerList} />
-      <Route path={`${path}/add`} component={CustomerForm} />
+      <Route path={`${path}/create`} component={CustomerForm} />
       <Route path={`${path}/edit/:customerId`} component={CustomerForm} />
+      <Route path={`${path}/delete/:customerId`} component={CustomerForm} />
       <Route path={`${path}/:customerId/addresses`} component={AddressRouter} />
       <Route path={`${path}/:customerId/notes`} component={NoteRouter} />
     </Switch>
