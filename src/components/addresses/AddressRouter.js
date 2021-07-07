@@ -8,8 +8,9 @@ function AddressRouter({ match }) {
   return (
     <Switch>
       <Route exact path={path} component={AddressList} />
-      <Route path={`${path}/add`} component={AddressForm} />
+      <Route path={`${path}/create`} component={AddressForm} />
       <Route path={`${path}/edit/:addressId`} component={AddressForm} />
+      <Route path={`${path}/delete/:addressId`} component={AddressForm} />
     </Switch>
   );
 }

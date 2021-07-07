@@ -8,8 +8,9 @@ function NoteRouter({ match }) {
   return (
     <Switch>
       <Route exact path={path} component={NoteList} />
-      <Route path={`${path}/add`} component={NoteForm} />
+      <Route path={`${path}/create`} component={NoteForm} />
       <Route path={`${path}/edit/:noteId`} component={NoteForm} />
+      <Route path={`${path}/delete/:noteId`} component={NoteForm} />
     </Switch>
   );
 }

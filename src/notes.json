@@ -1,0 +1,52 @@
+[
+  {
+    "noteText": "Note1",
+    "customerId": 1,
+    "noteId": 1
+  },
+  {
+    "noteText": "Note2",
+    "customerId": 1,
+    "noteId": 2
+  },
+  {
+    "noteText": "Note3",
+    "customerId": 2,
+    "noteId": 3
+  },
+  {
+    "noteText": "Note4",
+    "customerId": 3,
+    "noteId": 4
+  },
+  {
+    "noteText": "Note5",
+    "customerId": 4,
+    "noteId": 5
+  },
+  {
+    "noteText": "Note6",
+    "customerId": 5,
+    "noteId": 6
+  },
+  {
+    "noteText": "Note7",
+    "customerId": 5,
+    "noteId": 7
+  },
+  {
+    "noteText": "Note8",
+    "customerId": 5,
+    "noteId": 8
+  },
+  {
+    "noteText": "Note9",
+    "customerId": 6,
+    "noteId": 9
+  },
+  {
+    "noteText": "Note10",
+    "customerId": 6,
+    "noteId": 10
+  }
+]

@@ -42,7 +42,7 @@ const CustomerList = () => {
 
   return (
     <>
-      <h2 className="text-primary my-3">Customers</h2>
+      <h2 className="text-primary my-4">Customers</h2>
       <p>
         <PrimaryLink to={`/customers/create/`}>Create New</PrimaryLink>
       </p>
