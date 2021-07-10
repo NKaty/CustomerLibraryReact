@@ -2,7 +2,11 @@
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
 
-$primary: #337ab7;
+$primary:                        #337ab7;
+
+$pagination-color:               $primary;
+$pagination-active-bg:           $primary;
+$pagination-active-border-color: $primary;
 
 $theme-colors: (
         "primary": $primary,
