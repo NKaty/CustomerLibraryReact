@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 const Modal = ({
   title,
   body,
@@ -53,6 +55,15 @@ const Modal = ({
       </div>
     </>
   );
+};
+
+Modal.propTypes = {
+  title: PropTypes.string.isRequired,
+  body: PropTypes.string.isRequired,
+  cancelButtonLabel: PropTypes.string.isRequired,
+  actionButtonLabel: PropTypes.string.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onAction: PropTypes.func.isRequired,
 };
 
 export default Modal;

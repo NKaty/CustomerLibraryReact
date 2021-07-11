@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 const Pagination = ({ totalCount, currentPage, perPage, pageNeighbours }) => {
@@ -99,6 +100,13 @@ const Pagination = ({ totalCount, currentPage, perPage, pageNeighbours }) => {
       </nav>
     )
   );
+};
+
+Pagination.propTypes = {
+  totalCount: PropTypes.number.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  perPage: PropTypes.number.isRequired,
+  pageNeighbours: PropTypes.number.isRequired,
 };
 
 export default Pagination;

@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 const Table = ({ columns, data }) => {
   return (
     <table className="table">
@@ -21,6 +23,11 @@ const Table = ({ columns, data }) => {
       </tbody>
     </table>
   );
+};
+
+Table.propTypes = {
+  columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 export default Table;

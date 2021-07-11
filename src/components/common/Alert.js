@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 const Alert = ({ message, status, onClickCloseButton }) => {
   const alertClassMap = {
     error: 'alert-danger',
@@ -25,6 +27,12 @@ const Alert = ({ message, status, onClickCloseButton }) => {
       />
     </div>
   );
+};
+
+Alert.propTypes = {
+  message: PropTypes.string.isRequired,
+  status: PropTypes.string.isRequired,
+  onClickCloseButton: PropTypes.func.isRequired,
 };
 
 export default Alert;

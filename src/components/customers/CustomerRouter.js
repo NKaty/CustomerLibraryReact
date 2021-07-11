@@ -3,6 +3,7 @@ import CustomerList from './CustomerList';
 import CustomerForm from './CustomerForm';
 import AddressRouter from '../addresses/AddressRouter';
 import NoteRouter from '../notes/NoteRouter';
+import PropTypes from 'prop-types';
 
 function CustomerRouter({ match }) {
   const { path } = match;
@@ -17,5 +18,9 @@ function CustomerRouter({ match }) {
     </Switch>
   );
 }
+
+CustomerRouter.propTypes = {
+  match: PropTypes.object.isRequired,
+};
 
 export default CustomerRouter;

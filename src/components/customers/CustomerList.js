@@ -6,6 +6,7 @@ import Pagination from '../common/Pagination';
 import Modal from '../common/Modal';
 import Alert from '../common/Alert';
 import customerService from '../services/customer.service';
+import PropTypes from 'prop-types';
 
 class CustomerList extends Component {
   columns = [
@@ -175,5 +176,9 @@ class CustomerList extends Component {
     );
   }
 }
+
+CustomerList.propTypes = {
+  location: PropTypes.object.isRequired,
+};
 
 export default CustomerList;
