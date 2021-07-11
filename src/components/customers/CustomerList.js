@@ -7,6 +7,8 @@ import Spinner from '../common/Spinner';
 import Pagination from '../common/Pagination';
 import Modal from '../common/Modal';
 import Alert from '../common/Alert';
+import withDeleteModal from '../hoc/withDeleteModal';
+import withAlert from '../hoc/withAlert';
 import customerService from '../../services/customer.service';
 
 class CustomerList extends Component {
@@ -31,9 +33,6 @@ class CustomerList extends Component {
     totalCount: null,
     isLoading: true,
     isLoaded: false,
-    isModalOpen: false,
-    idToDelete: null,
-    error: null,
   };
 
   componentDidMount() {
@@ -46,6 +45,7 @@ class CustomerList extends Component {
         this.getCurrentPage(this.props.location) ||
       (!prevState.isLoading && !prevState.isLoaded)
     ) {
+      this.props.closeAlert();
       this.getData();
     }
   }
@@ -63,10 +63,11 @@ class CustomerList extends Component {
     return [offset, this.pagination.perPage];
   }
 
-  getData() {
+  getData = () => {
     customerService.getPage(...this.getPageParams()).then(data => {
       if (data.error) {
-        this.setState({ error: data.error, isLoading: false, isLoaded: true });
+        this.setState({ isLoading: false, isLoaded: true });
+        this.props.showAlert(data.error, 'error');
       } else {
         this.setState({
           customers: data.customers,
@@ -76,45 +77,6 @@ class CustomerList extends Component {
         });
       }
     });
-  }
-
-  onClickDeleteButton = customerId => event => {
-    event.preventDefault();
-    this.setState({ isModalOpen: true, idToDelete: customerId });
-  };
-
-  onClickModalDeleteButton = event => {
-    event.preventDefault();
-    this.setState({ isModalOpen: false });
-    if (this.state.idToDelete) {
-      customerService.delete(this.state.idToDelete).then(data => {
-        this.setState({ idToDelete: null });
-        if (data.error) {
-          this.setState({ error: data.error });
-        } else {
-          this.getData();
-        }
-      });
-    }
-  };
-
-  onClickModalCancelButton = event => {
-    event.preventDefault();
-    this.setState({ isModalOpen: false });
-  };
-
-  onClickAlertCloseButton = event => {
-    event.preventDefault();
-    this.setState({ error: null });
-  };
-
-  deleteModal = {
-    title: 'Delete customer',
-    body: 'Are you sure you want to delete this customer?',
-    cancelButtonLabel: 'Cancel',
-    actionButtonLabel: 'Delete',
-    onCancel: this.onClickModalCancelButton,
-    onAction: this.onClickModalDeleteButton,
   };
 
   prepareData(customers) {
@@ -136,7 +98,7 @@ class CustomerList extends Component {
           </PrimaryLink>
           &nbsp;|&nbsp;
           <ButtonLink
-            onClickButton={this.onClickDeleteButton(item.customerId)}
+            onClickButton={this.props.openModal(item.customerId)}
             label="Delete"
           />
         </>
@@ -145,8 +107,22 @@ class CustomerList extends Component {
     });
   }
 
+  deleteModal = {
+    title: 'Delete customer',
+    body: 'Are you sure you want to delete this customer?',
+    cancelButtonLabel: 'Cancel',
+    actionButtonLabel: 'Delete',
+    onCancel: this.props.onClickModalCancelButton,
+    onAction: this.props.onClickModalDeleteButton(
+      customerService,
+      error => this.props.showAlert(error, 'error'),
+      this.getData
+    ),
+  };
+
   render() {
-    const { isLoading, isModalOpen, customers, totalCount, error } = this.state;
+    const { isLoading, customers, totalCount } = this.state;
+    const { isModalOpen, message, status, closeAlert, location } = this.props;
 
     if (isLoading) {
       return <Spinner />;
@@ -155,11 +131,11 @@ class CustomerList extends Component {
     return (
       <>
         {isModalOpen && <Modal {...this.deleteModal} />}
-        {error && (
+        {message && (
           <Alert
-            message={error}
-            status="error"
-            onClickCloseButton={this.onClickAlertCloseButton}
+            message={message}
+            status={status}
+            onClickCloseButton={closeAlert}
           />
         )}
         <h2 className="text-primary my-4">Customers</h2>
@@ -168,7 +144,7 @@ class CustomerList extends Component {
         </p>
         <Table columns={this.columns} data={this.prepareData(customers)} />
         <Pagination
-          currentPage={this.getCurrentPage(this.props.location)}
+          currentPage={this.getCurrentPage(location)}
           totalCount={totalCount}
           {...this.pagination}
         />
@@ -178,7 +154,15 @@ class CustomerList extends Component {
 }
 
 CustomerList.propTypes = {
+  isModalOpen: PropTypes.bool.isRequired,
   location: PropTypes.object.isRequired,
+  message: PropTypes.string,
+  status: PropTypes.string,
+  openModal: PropTypes.func.isRequired,
+  showAlert: PropTypes.func.isRequired,
+  onClickModalCancelButton: PropTypes.func.isRequired,
+  onClickModalDeleteButton: PropTypes.func.isRequired,
+  closeAlert: PropTypes.func.isRequired,
 };
 
-export default CustomerList;
+export default withAlert(withDeleteModal(CustomerList));

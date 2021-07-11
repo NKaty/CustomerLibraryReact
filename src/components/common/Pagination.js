@@ -103,7 +103,7 @@ const Pagination = ({ totalCount, currentPage, perPage, pageNeighbours }) => {
 };
 
 Pagination.propTypes = {
-  totalCount: PropTypes.number.isRequired,
+  totalCount: PropTypes.number,
   currentPage: PropTypes.number.isRequired,
   perPage: PropTypes.number.isRequired,
   pageNeighbours: PropTypes.number.isRequired,

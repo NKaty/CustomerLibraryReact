@@ -6,6 +6,8 @@ import ButtonLink from '../common/ButtonLink';
 import Modal from '../common/Modal';
 import Alert from '../common/Alert';
 import Spinner from '../common/Spinner';
+import withDeleteModal from '../hoc/withDeleteModal';
+import withAlert from '../hoc/withAlert';
 import addressService from '../../services/address.service';
 
 class AddressList extends Component {
@@ -24,9 +26,6 @@ class AddressList extends Component {
     addresses: [],
     isLoading: true,
     isLoaded: false,
-    isModalOpen: false,
-    idToDelete: null,
-    error: null,
   };
 
   componentDidMount() {
@@ -35,6 +34,7 @@ class AddressList extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (!prevState.isLoading && !prevState.isLoaded) {
+      this.props.closeAlert();
       this.getData();
     }
   }
@@ -43,19 +43,16 @@ class AddressList extends Component {
     return parseInt(this.props.match.params.customerId, 10);
   }
 
-  getData() {
+  getData = () => {
     const customerId = this.getCustomerId();
     if (isNaN(customerId) || customerId === 0) {
-      return this.setState({ error: 'Customer is not found.' });
+      this.props.showAlert('Customer is not found.', 'error');
     }
 
     addressService.getByCustomerId(customerId).then(data => {
       if (data.error) {
-        this.setState({
-          error: data.error,
-          isLoading: false,
-          isLoaded: true,
-        });
+        this.setState({ isLoading: false, isLoaded: true });
+        this.props.showAlert(data.error, 'error');
       } else {
         this.setState({
           addresses: data,
@@ -64,36 +61,6 @@ class AddressList extends Component {
         });
       }
     });
-  }
-
-  onClickDeleteButton = addressId => event => {
-    event.preventDefault();
-    this.setState({ isModalOpen: true, idToDelete: addressId });
-  };
-
-  onClickModalDeleteButton = event => {
-    event.preventDefault();
-    this.setState({ isModalOpen: false });
-    if (this.state.idToDelete) {
-      addressService.delete(this.state.idToDelete).then(data => {
-        this.setState({ idToDelete: null });
-        if (data.error) {
-          this.setState({ error: data.error });
-        } else {
-          this.getData();
-        }
-      });
-    }
-  };
-
-  onClickModalCancelButton = event => {
-    event.preventDefault();
-    this.setState({ isModalOpen: false });
-  };
-
-  onClickAlertCloseButton = event => {
-    event.preventDefault();
-    this.setState({ error: null });
   };
 
   deleteModal = {
@@ -101,8 +68,12 @@ class AddressList extends Component {
     body: 'Are you sure you want to delete this address?',
     cancelButtonLabel: 'Cancel',
     actionButtonLabel: 'Delete',
-    onCancel: this.onClickModalCancelButton,
-    onAction: this.onClickModalDeleteButton,
+    onCancel: this.props.onClickModalCancelButton,
+    onAction: this.props.onClickModalDeleteButton(
+      addressService,
+      error => this.props.showAlert(error, 'error'),
+      this.getData
+    ),
   };
 
   onClickReturnButton = event => {
@@ -121,7 +92,7 @@ class AddressList extends Component {
           </PrimaryLink>
           &nbsp;|&nbsp;
           <ButtonLink
-            onClickButton={this.onClickDeleteButton(item.addressId)}
+            onClickButton={this.props.openModal(item.addressId)}
             label="Delete"
             disabled={data.length < 2}
           />
@@ -132,7 +103,8 @@ class AddressList extends Component {
   };
 
   render() {
-    const { isLoading, isModalOpen, addresses, error } = this.state;
+    const { isLoading, addresses } = this.state;
+    const { isModalOpen, message, status, closeAlert, location } = this.props;
 
     if (isLoading) {
       return <Spinner />;
@@ -141,11 +113,11 @@ class AddressList extends Component {
     return (
       <>
         {isModalOpen && <Modal {...this.deleteModal} />}
-        {error && (
+        {message && (
           <Alert
-            message={error}
-            status="error"
-            onClickCloseButton={this.onClickAlertCloseButton}
+            message={message}
+            status={status}
+            onClickCloseButton={closeAlert}
           />
         )}
         <h2 className="text-primary my-4">Addresses</h2>
@@ -157,7 +129,7 @@ class AddressList extends Component {
             />
           </p>
           <p>
-            <PrimaryLink to={`${this.props.location.pathname}create/`}>
+            <PrimaryLink to={`${location.pathname}create/`}>
               Create New
             </PrimaryLink>
           </p>
@@ -171,6 +143,14 @@ class AddressList extends Component {
 AddressList.propTypes = {
   location: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
+  isModalOpen: PropTypes.bool.isRequired,
+  message: PropTypes.string,
+  status: PropTypes.string,
+  openModal: PropTypes.func.isRequired,
+  showAlert: PropTypes.func.isRequired,
+  onClickModalCancelButton: PropTypes.func.isRequired,
+  onClickModalDeleteButton: PropTypes.func.isRequired,
+  closeAlert: PropTypes.func.isRequired,
 };
 
-export default AddressList;
+export default withAlert(withDeleteModal(AddressList));
