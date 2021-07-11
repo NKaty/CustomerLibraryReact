@@ -1,12 +1,13 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import PrimaryLink from '../common/PrimaryLink';
+import ButtonLink from '../common/ButtonLink';
 import Table from '../common/Table';
 import Spinner from '../common/Spinner';
 import Pagination from '../common/Pagination';
 import Modal from '../common/Modal';
 import Alert from '../common/Alert';
-import customerService from '../services/customer.service';
-import PropTypes from 'prop-types';
+import customerService from '../../services/customer.service';
 
 class CustomerList extends Component {
   columns = [
@@ -134,12 +135,10 @@ class CustomerList extends Component {
             Edit
           </PrimaryLink>
           &nbsp;|&nbsp;
-          <button
-            onClick={this.onClickDeleteButton(item.customerId)}
-            className="btn btn-link text-decoration-none text-primary d-inline m-0 p-0 align-top"
-          >
-            Delete
-          </button>
+          <ButtonLink
+            onClickButton={this.onClickDeleteButton(item.customerId)}
+            label="Delete"
+          />
         </>
       );
       return item;
@@ -148,6 +147,7 @@ class CustomerList extends Component {
 
   render() {
     const { isLoading, isModalOpen, customers, totalCount, error } = this.state;
+
     if (isLoading) {
       return <Spinner />;
     }
