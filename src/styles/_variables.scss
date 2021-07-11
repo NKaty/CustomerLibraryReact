@@ -2,21 +2,21 @@
 @import "~bootstrap/scss/functions";
 @import "~bootstrap/scss/variables";
 
-$primary:                        #337ab7;
+$primary: #337ab7;
 
-$pagination-color:               $primary;
-$pagination-active-bg:           $primary;
+$pagination-color: $primary;
+$pagination-active-bg: $primary;
 $pagination-active-border-color: $primary;
 
 $theme-colors: (
-        "primary": $primary,
-        "secondary": $secondary,
-        "success": $success,
-        "info": $info,
-        "warning": $warning,
-        "danger": $danger,
-        "light": $light,
-        "dark": $dark,
-        "orange": orange,
-        "green": rgb(2, 167, 2)
+    "primary": $primary,
+    "secondary": $secondary,
+    "success": $success,
+    "info": $info,
+    "warning": $warning,
+    "danger": $danger,
+    "light": $light,
+    "dark": $dark,
+    "orange": orange,
+    "green": rgb(2, 167, 2)
 );

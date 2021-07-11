@@ -42,15 +42,14 @@ function handleResponse(url, requestOptions) {
   return fetch(url, requestOptions)
     .then(response => {
       error = !response.ok;
-      return response.json();
+      return response.text();
     })
-    .then(data => {
-      if (error) return { error: data.title };
+    .then(text => {
+      const data = text && JSON.parse(text);
+      if (error) return { error: data ? data.title : 'Something went wrong.' };
       return data;
     })
-    .catch(() => ({
-      error: 'Something went wrong.',
-    }));
+    .catch(() => ({ error: 'Something went wrong.' }));
 }
 
 export default fetchWrapper;

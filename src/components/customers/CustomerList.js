@@ -3,6 +3,7 @@ import PrimaryLink from '../common/PrimaryLink';
 import Table from '../common/Table';
 import Spinner from '../common/Spinner';
 import Pagination from '../common/Pagination';
+import Modal from '../common/Modal';
 import customerService from '../services/customer.service';
 
 class CustomerList extends Component {
@@ -24,9 +25,11 @@ class CustomerList extends Component {
 
   state = {
     customers: [],
-    totalCount: 1,
+    totalCount: null,
     isLoading: true,
     isLoaded: false,
+    isModalOpen: false,
+    idToDelete: null,
     error: null,
   };
 
@@ -72,6 +75,41 @@ class CustomerList extends Component {
     });
   }
 
+  onClickDeleteButton = customerId => event => {
+    event.preventDefault();
+    this.setState({ isModalOpen: true, idToDelete: customerId });
+  };
+
+  onClickModalDeleteButton = event => {
+    event.preventDefault();
+    this.setState({ isModalOpen: false });
+    if (this.state.idToDelete) {
+      customerService.delete(this.state.idToDelete).then(data => {
+        this.setState({ idToDelete: null });
+        console.log('data', data);
+        if (data.error) {
+          this.setState({ error: data.error });
+        } else {
+          this.getData();
+        }
+      });
+    }
+  };
+
+  onClickModalCancelButton = event => {
+    event.preventDefault();
+    this.setState({ isModalOpen: false });
+  };
+
+  deleteModal = {
+    title: 'Delete customer',
+    body: 'Are you sure you want to delete this customer?',
+    cancelButtonLabel: 'Cancel',
+    actionButtonLabel: 'Delete',
+    onCancel: this.onClickModalCancelButton,
+    onAction: this.onClickModalDeleteButton,
+  };
+
   prepareData(customers) {
     return customers.map(item => {
       item.addresses = (
@@ -90,9 +128,12 @@ class CustomerList extends Component {
             Edit
           </PrimaryLink>
           &nbsp;|&nbsp;
-          <PrimaryLink to={`/customers/delete/${item.customerId}/`}>
+          <button
+            onClick={this.onClickDeleteButton(item.customerId)}
+            className="btn btn-link text-decoration-none text-primary d-inline m-0 p-0 align-top"
+          >
             Delete
-          </PrimaryLink>
+          </button>
         </>
       );
       return item;
@@ -100,14 +141,14 @@ class CustomerList extends Component {
   }
 
   render() {
-    const { isLoading, customers, totalCount } = this.state;
-
+    const { isLoading, isModalOpen, customers, totalCount } = this.state;
     if (isLoading) {
       return <Spinner />;
     }
 
     return (
       <>
+        {isModalOpen && <Modal {...this.deleteModal} />}
         <h2 className="text-primary my-4">Customers</h2>
         <p>
           <PrimaryLink to={`/customers/create/`}>Create New</PrimaryLink>

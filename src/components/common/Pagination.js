@@ -41,7 +41,7 @@ const Pagination = ({ totalCount, currentPage, perPage, pageNeighbours }) => {
   };
 
   return (
-    totalPages &&
+    !!totalPages &&
     totalPages !== 1 && (
       <nav aria-label="pagination">
         <ul className="pagination justify-content-center mt-5">
