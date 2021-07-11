@@ -4,6 +4,7 @@ import Table from '../common/Table';
 import Spinner from '../common/Spinner';
 import Pagination from '../common/Pagination';
 import Modal from '../common/Modal';
+import Alert from '../common/Alert';
 import customerService from '../services/customer.service';
 
 class CustomerList extends Component {
@@ -86,7 +87,6 @@ class CustomerList extends Component {
     if (this.state.idToDelete) {
       customerService.delete(this.state.idToDelete).then(data => {
         this.setState({ idToDelete: null });
-        console.log('data', data);
         if (data.error) {
           this.setState({ error: data.error });
         } else {
@@ -99,6 +99,11 @@ class CustomerList extends Component {
   onClickModalCancelButton = event => {
     event.preventDefault();
     this.setState({ isModalOpen: false });
+  };
+
+  onClickAlertCloseButton = event => {
+    event.preventDefault();
+    this.setState({ error: null });
   };
 
   deleteModal = {
@@ -141,7 +146,7 @@ class CustomerList extends Component {
   }
 
   render() {
-    const { isLoading, isModalOpen, customers, totalCount } = this.state;
+    const { isLoading, isModalOpen, customers, totalCount, error } = this.state;
     if (isLoading) {
       return <Spinner />;
     }
@@ -149,6 +154,13 @@ class CustomerList extends Component {
     return (
       <>
         {isModalOpen && <Modal {...this.deleteModal} />}
+        {error && (
+          <Alert
+            message={error}
+            status="error"
+            onClickCloseButton={this.onClickAlertCloseButton}
+          />
+        )}
         <h2 className="text-primary my-4">Customers</h2>
         <p>
           <PrimaryLink to={`/customers/create/`}>Create New</PrimaryLink>

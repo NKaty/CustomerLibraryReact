@@ -12,7 +12,6 @@ function CustomerRouter({ match }) {
       <Route exact path={path} component={CustomerList} />
       <Route path={`${path}/create`} component={CustomerForm} />
       <Route path={`${path}/edit/:customerId`} component={CustomerForm} />
-      <Route path={`${path}/delete/:customerId`} component={CustomerForm} />
       <Route path={`${path}/:customerId/addresses`} component={AddressRouter} />
       <Route path={`${path}/:customerId/notes`} component={NoteRouter} />
     </Switch>
