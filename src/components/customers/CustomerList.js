@@ -107,18 +107,23 @@ class CustomerList extends Component {
     });
   }
 
-  deleteModal = {
-    title: 'Delete customer',
-    body: 'Are you sure you want to delete this customer?',
-    cancelButtonLabel: 'Cancel',
-    actionButtonLabel: 'Delete',
-    onCancel: this.props.onClickModalCancelButton,
-    onAction: this.props.onClickModalDeleteButton(
-      customerService,
-      error => this.props.showAlert(error, 'error'),
-      this.getData
-    ),
-  };
+  getDeleteModalProps() {
+    const { onClickModalCancelButton, onClickModalDeleteButton, showAlert } =
+      this.props;
+
+    return {
+      title: 'Delete customer',
+      body: 'Are you sure you want to delete this customer?',
+      cancelButtonLabel: 'Cancel',
+      actionButtonLabel: 'Delete',
+      onCancel: onClickModalCancelButton,
+      onAction: onClickModalDeleteButton(
+        customerService,
+        error => showAlert(error, 'error'),
+        this.getData
+      ),
+    };
+  }
 
   render() {
     const { isLoading, customers, totalCount } = this.state;
@@ -130,7 +135,7 @@ class CustomerList extends Component {
 
     return (
       <>
-        {isModalOpen && <Modal {...this.deleteModal} />}
+        {isModalOpen && <Modal {...this.getDeleteModalProps()} />}
         {message && (
           <Alert
             message={message}
