@@ -46,7 +46,12 @@ function handleResponse(url, requestOptions) {
     })
     .then(text => {
       const data = text && JSON.parse(text);
-      if (error) return { error: data ? data.title : 'Something went wrong.' };
+      if (error)
+        return {
+          error: true,
+          errorTitle: data ? data.title : 'Something went wrong.',
+          validationErrors: (data && data.errors) ?? null,
+        };
       return data;
     })
     .catch(() => ({ error: 'Something went wrong.' }));

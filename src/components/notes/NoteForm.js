@@ -1,15 +1,32 @@
-const NoteForm = ({ isCreateMode, data }) => {
+import { Field, ErrorMessage } from 'formik';
+
+const NoteForm = ({ errors, touched }) => {
   return (
-    <form>
+    <>
+      <Field name="customerId" type="text" hidden />
+      <Field name="noteId" type="text" hidden />
       <div className="row mb-3">
-        <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">
+        <label htmlFor="noteText" className="col-sm-2 col-form-label">
           Note
         </label>
         <div className="col-sm-10">
-          <input type="email" className="form-control" id="inputEmail3" />
+          <Field
+            as="textarea"
+            name="noteText"
+            id="noteText"
+            className={
+              'form-control' +
+              (errors.noteText && touched.noteText ? ' is-invalid' : '')
+            }
+          />
         </div>
+        <ErrorMessage
+          name="noteText"
+          component="div"
+          className="invalid-feedback d-block offset-sm-2"
+        />
       </div>
-    </form>
+    </>
   );
 };
 

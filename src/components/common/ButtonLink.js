@@ -4,7 +4,7 @@ const ButtonLink = ({ label, onClickButton, disabled }) => {
   return (
     <button
       onClick={onClickButton}
-      className="btn btn-link text-decoration-none text-primary d-inline m-0 p-0 align-top"
+      className="btn btn-link text-decoration-none text-primary d-inline m-0 p-0 align-baseline"
       disabled={disabled}
     >
       {label}

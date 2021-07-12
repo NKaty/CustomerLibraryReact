@@ -42,7 +42,7 @@ class DependentEntityList extends Component {
     entity.service.getByCustomerId(customerId).then(data => {
       if (data.error) {
         this.setState({ isLoading: false, isLoaded: true });
-        this.props.showAlert(data.error, 'error');
+        this.props.showAlert(data.errorTitle, 'error');
       } else {
         this.setState({
           entities: data,

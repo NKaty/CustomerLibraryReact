@@ -67,7 +67,7 @@ class CustomerList extends Component {
     customerService.getPage(...this.getPageParams()).then(data => {
       if (data.error) {
         this.setState({ isLoading: false, isLoaded: true });
-        this.props.showAlert(data.error, 'error');
+        this.props.showAlert(data.errorTitle, 'error');
       } else {
         this.setState({
           customers: data.customers,
