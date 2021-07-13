@@ -156,7 +156,7 @@ class CustomerFormPage extends Component {
           <Formik
             initialValues={customer}
             validationSchema={customerValidationSchema}
-            onSubmit={onSubmit(customer.customerId)}
+            onSubmit={onSubmit(customer.customerId, customerService)}
             enableReinitialize
           >
             {({ errors, touched, isSubmitting, handleReset, values }) => {
@@ -189,4 +189,4 @@ CustomerFormPage.propTypes = {
   match: PropTypes.object.isRequired,
 };
 
-export default withAlert(withCreateEditForm(CustomerFormPage, customerService));
+export default withAlert(withCreateEditForm(CustomerFormPage));

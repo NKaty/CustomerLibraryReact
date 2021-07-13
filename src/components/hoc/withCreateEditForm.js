@@ -1,13 +1,13 @@
-const withCreateEditForm = (OriginalComponent, service) =>
+const withCreateEditForm = OriginalComponent =>
   function WithCreateEditForm(props) {
     const onSubmit =
-      id =>
+      (id, service) =>
       (fields, { setStatus, setSubmitting, setFieldError }) => {
         setStatus();
         if (!id) {
-          create(fields, setSubmitting, setFieldError);
+          create(service, fields, setSubmitting, setFieldError);
         } else {
-          update(fields, id, setSubmitting, setFieldError);
+          update(service, fields, id, setSubmitting, setFieldError);
         }
       };
 
@@ -28,7 +28,7 @@ const withCreateEditForm = (OriginalComponent, service) =>
       }
     };
 
-    const create = (fields, setSubmitting, setFieldError) => {
+    const create = (service, fields, setSubmitting, setFieldError) => {
       service.create(fields).then(data => {
         if (data.error) {
           setSubmitting(false);
@@ -39,7 +39,7 @@ const withCreateEditForm = (OriginalComponent, service) =>
       });
     };
 
-    const update = (fields, id, setSubmitting, setFieldError) => {
+    const update = (service, fields, id, setSubmitting, setFieldError) => {
       service.update(id, fields).then(data => {
         if (data.error) {
           setSubmitting(false);
