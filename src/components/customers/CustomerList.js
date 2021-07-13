@@ -82,12 +82,22 @@ class CustomerList extends Component {
   prepareData(customers) {
     return customers.map(item => {
       item.addresses = (
-        <PrimaryLink to={`/customers/${item.customerId}/addresses/`}>
+        <PrimaryLink
+          to={{
+            pathname: `/customers/${item.customerId}/addresses/`,
+            state: `${item.firstName} ${item.lastName}`,
+          }}
+        >
           Addresses
         </PrimaryLink>
       );
       item.notes = (
-        <PrimaryLink to={`/customers/${item.customerId}/notes/`}>
+        <PrimaryLink
+          to={{
+            pathname: `/customers/${item.customerId}/notes/`,
+            state: `${item.firstName} ${item.lastName}`,
+          }}
+        >
           Notes
         </PrimaryLink>
       );

@@ -128,7 +128,10 @@ class DependentEntityList extends Component {
             onClickCloseButton={closeAlert}
           />
         )}
-        <h2 className="text-primary my-4">{listTitle}</h2>
+        <h2 className="text-primary my-4">
+          {listTitle +
+            (location.state ? ` for customer ${location.state}` : '')}
+        </h2>
         <div className="d-flex justify-content-between">
           <p>
             <ButtonLink
