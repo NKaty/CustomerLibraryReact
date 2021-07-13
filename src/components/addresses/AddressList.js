@@ -1,9 +1,8 @@
-import { Component } from 'react';
 import DependentEntityList from '../common/DependentEntityList';
 import addressService from '../../services/address.service';
 
-class AddressList extends Component {
-  columns = [
+const AddressList = () => {
+  const columns = [
     { name: 'addressLine', displayName: 'Address Line' },
     { name: 'addressLine2', displayName: 'Address Line2' },
     { name: 'addressType', displayName: 'Address Type' },
@@ -14,19 +13,17 @@ class AddressList extends Component {
     { name: 'actions', displayName: 'Actions' },
   ];
 
-  getListProps() {
+  const getListProps = () => {
     return {
       name: 'address',
       service: addressService,
       listTitle: 'Addresses',
-      id: 'addressId',
-      columns: this.columns,
+      idName: 'addressId',
+      columns: columns,
     };
-  }
+  };
 
-  render() {
-    return <DependentEntityList entity={this.getListProps()} {...this.props} />;
-  }
-}
+  return <DependentEntityList entityProps={getListProps()} />;
+};
 
 export default AddressList;

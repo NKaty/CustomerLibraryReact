@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 import PrimaryLink from '../common/PrimaryLink';
 import Table from '../common/Table';
 import ButtonLink from '../common/ButtonLink';
@@ -32,17 +33,17 @@ class DependentEntityList extends Component {
   }
 
   getData = () => {
-    const { showAlert, entity } = this.props;
+    const { showAlert, entityProps } = this.props;
 
     const customerId = this.getCustomerId();
     if (isNaN(customerId) || customerId === 0) {
       showAlert('Customer is not found.', 'error');
     }
 
-    entity.service.getByCustomerId(customerId).then(data => {
+    entityProps.service.getByCustomerId(customerId).then(data => {
       if (data.error) {
         this.setState({ isLoading: false, isLoaded: true });
-        this.props.showAlert(data.errorTitle, 'error');
+        showAlert(data.errorTitle, 'error');
       } else {
         this.setState({
           entities: data,
@@ -55,20 +56,22 @@ class DependentEntityList extends Component {
 
   getDeleteModalProps() {
     const {
-      entity,
+      entityProps,
       onClickModalCancelButton,
       onClickModalDeleteButton,
       showAlert,
     } = this.props;
 
+    const { name, service } = entityProps;
+
     return {
-      title: `Delete ${entity.name}`,
-      body: `Are you sure you want to delete this ${entity.name}?`,
+      title: `Delete ${name}`,
+      body: `Are you sure you want to delete this ${name}?`,
       cancelButtonLabel: 'Cancel',
       actionButtonLabel: 'Delete',
       onCancel: onClickModalCancelButton,
       onAction: onClickModalDeleteButton(
-        entity.service,
+        service,
         error => showAlert(error, 'error'),
         this.getData
       ),
@@ -81,16 +84,21 @@ class DependentEntityList extends Component {
   };
 
   prepareData = data => {
-    const { location, openModal, entity } = this.props;
+    const {
+      location,
+      openModal,
+      entityProps: { idName },
+    } = this.props;
+
     return data.map(item => {
       item.actions = (
         <>
-          <PrimaryLink to={`${location.pathname}edit/${item[entity.id]}/`}>
+          <PrimaryLink to={`${location.pathname}edit/${item[idName]}/`}>
             Edit
           </PrimaryLink>
           &nbsp;|&nbsp;
           <ButtonLink
-            onClickButton={openModal(item[entity.id])}
+            onClickButton={openModal(item[idName])}
             label="Delete"
             disabled={data.length < 2}
           />
@@ -102,8 +110,9 @@ class DependentEntityList extends Component {
 
   render() {
     const { isLoading, entities } = this.state;
-    const { isModalOpen, message, status, closeAlert, entity, location } =
+    const { isModalOpen, message, status, closeAlert, entityProps, location } =
       this.props;
+    const { listTitle, columns } = entityProps;
 
     if (isLoading) {
       return <Spinner />;
@@ -119,7 +128,7 @@ class DependentEntityList extends Component {
             onClickCloseButton={closeAlert}
           />
         )}
-        <h2 className="text-primary my-4">{entity.listTitle}</h2>
+        <h2 className="text-primary my-4">{listTitle}</h2>
         <div className="d-flex justify-content-between">
           <p>
             <ButtonLink
@@ -133,7 +142,7 @@ class DependentEntityList extends Component {
             </PrimaryLink>
           </p>
         </div>
-        <Table columns={entity.columns} data={this.prepareData(entities)} />
+        <Table columns={columns} data={this.prepareData(entities)} />
       </>
     );
   }
@@ -150,7 +159,7 @@ DependentEntityList.propTypes = {
   onClickModalCancelButton: PropTypes.func.isRequired,
   onClickModalDeleteButton: PropTypes.func.isRequired,
   closeAlert: PropTypes.func.isRequired,
-  entity: PropTypes.object.isRequired,
+  entityProps: PropTypes.object.isRequired,
 };
 
-export default withAlert(withDeleteModal(DependentEntityList));
+export default withRouter(withAlert(withDeleteModal(DependentEntityList)));

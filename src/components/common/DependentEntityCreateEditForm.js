@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { Formik, Form } from 'formik';
+import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import withAlert from '../hoc/withAlert';
 import withCreateEditForm from '../hoc/withCreateEditForm';
@@ -121,4 +122,6 @@ DependentEntityCreateEditForm.propTypes = {
   entityProps: PropTypes.object.isRequired,
 };
 
-export default withAlert(withCreateEditForm(DependentEntityCreateEditForm));
+export default withRouter(
+  withAlert(withCreateEditForm(DependentEntityCreateEditForm))
+);
