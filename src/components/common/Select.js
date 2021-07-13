@@ -1,4 +1,5 @@
 import { Field, ErrorMessage } from 'formik';
+import PropTypes from 'prop-types';
 
 const Select = ({ displayName, fieldName, isError, isTouched, options }) => {
   return (
@@ -25,6 +26,14 @@ const Select = ({ displayName, fieldName, isError, isTouched, options }) => {
       />
     </div>
   );
+};
+
+Select.propTypes = {
+  displayName: PropTypes.string.isRequired,
+  fieldName: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+  isError: PropTypes.bool.isRequired,
+  isTouched: PropTypes.bool.isRequired,
 };
 
 export default Select;

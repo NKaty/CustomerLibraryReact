@@ -11,6 +11,8 @@ import customerService from '../../services/customer.service';
 import customerValidationSchema from '../../validationSchemas/customer.validationSchema';
 import noteInitialState from '../../initialStates/note.initialState';
 import customerInitialState from '../../initialStates/customer.initialState';
+import addressInitialState from '../../initialStates/address.initialState';
+import AddressForm from '../addresses/AddressForm';
 
 class CustomerFormPage extends Component {
   state = {
@@ -47,6 +49,12 @@ class CustomerFormPage extends Component {
                 customerId: prevState.customer.customerId,
               },
             ],
+            addresses: [
+              {
+                ...addressInitialState,
+                customerId: prevState.customer.customerId,
+              },
+            ],
           },
         }));
       }
@@ -62,6 +70,7 @@ class CustomerFormPage extends Component {
         this.setState({
           customer: data,
           notesStartLength: data.notes.length,
+          addressesStartLength: data.addresses.length,
           isLoading: false,
           isLoaded: true,
         });
@@ -79,7 +88,7 @@ class CustomerFormPage extends Component {
     const { notes } = values;
 
     return (
-      <>
+      <div className="mt-4">
         <h4 className="text-primary">Notes</h4>
         <div className="ms-4">
           <FieldArray
@@ -133,7 +142,74 @@ class CustomerFormPage extends Component {
             }}
           />
         </div>
-      </>
+      </div>
+    );
+  }
+
+  renderAddressForm(values, errors, touched) {
+    const { customer, addressesStartLength } = this.state;
+    const { addresses } = values;
+
+    return (
+      <div className="mt-4">
+        <h4 className="text-primary">Addresses</h4>
+        <div className="ms-4">
+          <FieldArray
+            name="addresses"
+            render={arrayHelpers => {
+              const onClickAddAddress = event => {
+                event.preventDefault();
+                arrayHelpers.push({
+                  ...addressInitialState,
+                  customerId: customer.customerId,
+                });
+              };
+
+              const onClickRemoveAddress = event => {
+                event.preventDefault();
+                if (addresses.length > addressesStartLength) {
+                  arrayHelpers.pop();
+                } else {
+                  this.props.showAlert(
+                    'Cannot remove the last address.',
+                    'error'
+                  );
+                }
+              };
+
+              return (
+                <>
+                  {addresses.map((note, index) => (
+                    <div key={index}>
+                      <h5>Address</h5>
+                      <AddressForm
+                        namespace={{ property: 'addresses', index }}
+                        errors={errors}
+                        touched={touched}
+                      />
+                    </div>
+                  ))}
+                  <div className="text-end">
+                    <button
+                      className="btn btn-secondary me-2"
+                      onClick={onClickAddAddress}
+                    >
+                      +
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      disabled={addresses.length <= addressesStartLength}
+                      onClick={onClickRemoveAddress}
+                    >
+                      -
+                    </button>
+                  </div>
+                </>
+              );
+            }}
+          />
+        </div>
+      </div>
     );
   }
 
@@ -163,6 +239,7 @@ class CustomerFormPage extends Component {
               return (
                 <Form className="flex-fill form">
                   <CustomerForm errors={errors} touched={touched} />
+                  {this.renderAddressForm(values, errors, touched)}
                   {this.renderNoteForm(values, errors, touched)}
                   <CreateEditSubmitButtonGroup
                     isSubmitting={isSubmitting}
