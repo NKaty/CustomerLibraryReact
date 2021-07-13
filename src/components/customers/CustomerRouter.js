@@ -1,6 +1,6 @@
 import { Route, Switch } from 'react-router-dom';
 import CustomerList from './CustomerList';
-import CustomerForm from './CustomerForm';
+import CustomerFormPage from './CustomerFormPage';
 import AddressRouter from '../addresses/AddressRouter';
 import NoteRouter from '../notes/NoteRouter';
 import PropTypes from 'prop-types';
@@ -11,8 +11,8 @@ function CustomerRouter({ match }) {
   return (
     <Switch>
       <Route exact path={path} component={CustomerList} />
-      <Route path={`${path}/create`} component={CustomerForm} />
-      <Route path={`${path}/edit/:customerId`} component={CustomerForm} />
+      <Route path={`${path}/create`} component={CustomerFormPage} />
+      <Route path={`${path}/edit/:customerId`} component={CustomerFormPage} />
       <Route path={`${path}/:customerId/addresses`} component={AddressRouter} />
       <Route path={`${path}/:customerId/notes`} component={NoteRouter} />
     </Switch>

@@ -1,29 +1,36 @@
 import { Field, ErrorMessage } from 'formik';
+import {
+  getNameWithNamespace,
+  getPropertyWithNamespace,
+} from '../../utils/convertFormNamespace';
 
-const NoteForm = ({ errors, touched }) => {
+const NoteForm = ({ namespace, errors, touched }) => {
+  const getName = getNameWithNamespace(namespace);
+  const getProperty = getPropertyWithNamespace(namespace);
+
   return (
     <>
-      <Field name="customerId" type="text" hidden />
-      <Field name="noteId" type="text" hidden />
-      <div className="row mb-3">
-        <label htmlFor="noteText" className="col-sm-2 col-form-label">
+      <Field name={getName('customerId')} type="text" hidden />
+      <Field name={getName('nodeId')} type="text" hidden />
+      <div className="mb-3">
+        <label htmlFor="noteText" className="form-label">
           Note
         </label>
-        <div className="col-sm-10">
-          <Field
-            as="textarea"
-            name="noteText"
-            id="noteText"
-            className={
-              'form-control' +
-              (errors.noteText && touched.noteText ? ' is-invalid' : '')
-            }
-          />
-        </div>
+        <Field
+          as="textarea"
+          name={getName('noteText')}
+          id="noteText"
+          className={
+            'form-control' +
+            (getProperty(errors, 'noteText') && getProperty(touched, 'noteText')
+              ? ' is-invalid'
+              : '')
+          }
+        />
         <ErrorMessage
-          name="noteText"
+          name={getName('noteText')}
           component="div"
-          className="invalid-feedback d-block offset-sm-2"
+          className="invalid-feedback d-block"
         />
       </div>
     </>
