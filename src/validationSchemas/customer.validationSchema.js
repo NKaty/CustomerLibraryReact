@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import noteSchema from './note.validationSchema';
+import addressSchema from './address.validationSchema';
 
 const customerSchema = Yup.object().shape({
   firstName: Yup.string()
@@ -16,6 +17,9 @@ const customerSchema = Yup.object().shape({
     .typeError('The field must be a number.')
     .nullable(),
   notes: Yup.array().of(noteSchema).min(1, 'Must be at least one note.'),
+  addresses: Yup.array()
+    .of(addressSchema)
+    .min(1, 'Must be at least one address.'),
 });
 
 export default customerSchema;

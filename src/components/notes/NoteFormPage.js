@@ -7,7 +7,6 @@ import noteInitialState from '../../initialStates/note.initialState';
 const NoteFormPage = () => {
   const getFormProps = () => {
     return {
-      name: 'notes',
       service: noteService,
       validationSchema: noteValidationSchema,
       initialState: noteInitialState,

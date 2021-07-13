@@ -1,7 +1,7 @@
 import { Route, Switch } from 'react-router-dom';
-import AddressList from './AddressList';
-import AddressForm from './AddressForm';
 import PropTypes from 'prop-types';
+import AddressList from './AddressList';
+import AddressFormPage from './AddressFormPage';
 
 function AddressRouter({ match }) {
   const { path } = match;
@@ -9,8 +9,8 @@ function AddressRouter({ match }) {
   return (
     <Switch>
       <Route exact path={path} component={AddressList} />
-      <Route path={`${path}/create`} component={AddressForm} />
-      <Route path={`${path}/edit/:addressId`} component={AddressForm} />
+      <Route path={`${path}/create`} component={AddressFormPage} />
+      <Route path={`${path}/edit/:addressId`} component={AddressFormPage} />
     </Switch>
   );
 }

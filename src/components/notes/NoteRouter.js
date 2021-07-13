@@ -1,7 +1,7 @@
 import { Route, Switch } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import NoteList from './NoteList';
 import NoteFormPage from './NoteFormPage';
-import PropTypes from 'prop-types';
 
 function NoteRouter({ match }) {
   const { path } = match;

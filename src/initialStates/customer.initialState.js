@@ -5,6 +5,7 @@ const customerInitialState = {
   phoneNumber: '',
   email: '',
   totalPurchasesAmount: '',
+  addresses: [],
   notes: [],
 };
 
