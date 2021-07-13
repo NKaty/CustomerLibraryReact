@@ -4,9 +4,8 @@ import NoteForm from '../notes/NoteForm';
 import withAlert from '../hoc/withAlert';
 import withCreateEditForm from '../hoc/withCreateEditForm';
 import Alert from '../common/Alert';
-import ButtonLink from '../common/ButtonLink';
-import ButtonSpinner from '../common/ButtonSpinner';
 import CustomerForm from './CustomerForm';
+import CreateEditSubmitButtonGroup from '../common/CreateEditSubmitButtonGroup';
 import customerService from '../../services/customer.service';
 import customerValidationSchema from '../../validationSchemas/customer.validationSchema';
 import noteInitialState from '../../initialStates/note.initialState';
@@ -162,23 +161,11 @@ class CustomerFormPage extends Component {
                 <Form className="flex-fill form">
                   <CustomerForm errors={errors} touched={touched} />
                   {this.renderNoteForm(values, errors, touched)}
-                  <div className="form-group my-5">
-                    <button type="submit" className="btn btn-primary me-3">
-                      {isSubmitting && <ButtonSpinner />}
-                      Save
-                    </button>
-                    <button
-                      onClick={handleReset}
-                      disabled={isSubmitting}
-                      className="btn btn-secondary me-3"
-                    >
-                      Reset
-                    </button>
-                    <ButtonLink
-                      onClickButton={onClickCancelButton}
-                      label="Cancel"
-                    />
-                  </div>
+                  <CreateEditSubmitButtonGroup
+                    isSubmitting={isSubmitting}
+                    onClickCancelButton={onClickCancelButton}
+                    handleReset={handleReset}
+                  />
                 </Form>
               );
             }}

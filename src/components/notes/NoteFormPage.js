@@ -4,8 +4,7 @@ import NoteForm from './NoteForm';
 import withAlert from '../hoc/withAlert';
 import withCreateEditForm from '../hoc/withCreateEditForm';
 import Alert from '../common/Alert';
-import ButtonLink from '../common/ButtonLink';
-import ButtonSpinner from '../common/ButtonSpinner';
+import CreateEditSubmitButtonGroup from '../common/CreateEditSubmitButtonGroup';
 import noteValidationSchema from '../../validationSchemas/note.validationSchema';
 import noteService from '../../services/note.service';
 
@@ -88,23 +87,11 @@ class NoteFormPage extends Component {
               return (
                 <Form className="flex-fill form">
                   <NoteForm errors={errors} touched={touched} />
-                  <div className="form-group my-5">
-                    <button type="submit" className="btn btn-primary me-3">
-                      {isSubmitting && <ButtonSpinner />}
-                      Save
-                    </button>
-                    <button
-                      onClick={handleReset}
-                      disabled={isSubmitting}
-                      className="btn btn-secondary me-3"
-                    >
-                      Reset
-                    </button>
-                    <ButtonLink
-                      onClickButton={onClickCancelButton}
-                      label="Cancel"
-                    />
-                  </div>
+                  <CreateEditSubmitButtonGroup
+                    isSubmitting={isSubmitting}
+                    onClickCancelButton={onClickCancelButton}
+                    handleReset={handleReset}
+                  />
                 </Form>
               );
             }}
