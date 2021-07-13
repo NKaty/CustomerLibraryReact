@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { Formik, Form } from 'formik';
+import PropTypes from 'prop-types';
 import NoteForm from './NoteForm';
 import withAlert from '../hoc/withAlert';
 import withCreateEditForm from '../hoc/withCreateEditForm';
@@ -101,5 +102,15 @@ class NoteFormPage extends Component {
     );
   }
 }
+
+NoteFormPage.propTypes = {
+  message: PropTypes.string,
+  status: PropTypes.string,
+  showAlert: PropTypes.func.isRequired,
+  closeAlert: PropTypes.func.isRequired,
+  onClickCancelButton: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  match: PropTypes.object.isRequired,
+};
 
 export default withAlert(withCreateEditForm(NoteFormPage, noteService));

@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { Formik, Form, FieldArray } from 'formik';
+import PropTypes from 'prop-types';
 import NoteForm from '../notes/NoteForm';
 import withAlert from '../hoc/withAlert';
 import withCreateEditForm from '../hoc/withCreateEditForm';
@@ -75,6 +76,7 @@ class CustomerFormPage extends Component {
 
   renderNoteForm(values, errors, touched) {
     const { customer, notesStartLength } = this.state;
+    const { notes } = values;
 
     return (
       <>
@@ -93,7 +95,7 @@ class CustomerFormPage extends Component {
 
               const onClickRemoveNote = event => {
                 event.preventDefault();
-                if (values.notes.length > notesStartLength) {
+                if (notes.length > notesStartLength) {
                   arrayHelpers.pop();
                 } else {
                   this.props.showAlert('Cannot remove the last note.', 'error');
@@ -102,7 +104,7 @@ class CustomerFormPage extends Component {
 
               return (
                 <>
-                  {values.notes.map((note, index) => (
+                  {notes.map((note, index) => (
                     <div key={index}>
                       <NoteForm
                         namespace={{ property: 'notes', index }}
@@ -120,7 +122,7 @@ class CustomerFormPage extends Component {
                     </button>
                     <button
                       className="btn btn-secondary"
-                      disabled={values.notes.length <= notesStartLength}
+                      disabled={notes.length <= notesStartLength}
                       onClick={onClickRemoveNote}
                     >
                       -
@@ -138,6 +140,7 @@ class CustomerFormPage extends Component {
   render() {
     const { message, status, closeAlert, onSubmit, onClickCancelButton } =
       this.props;
+    const { customer } = this.state;
 
     return (
       <>
@@ -151,9 +154,9 @@ class CustomerFormPage extends Component {
         <h2 className="text-primary text-center my-5">Customer Form</h2>
         <div className="d-flex justify-content-center">
           <Formik
-            initialValues={this.state.customer}
+            initialValues={customer}
             validationSchema={customerValidationSchema}
-            onSubmit={onSubmit(this.state.customer.customerId)}
+            onSubmit={onSubmit(customer.customerId)}
             enableReinitialize
           >
             {({ errors, touched, isSubmitting, handleReset, values }) => {
@@ -175,5 +178,15 @@ class CustomerFormPage extends Component {
     );
   }
 }
+
+CustomerFormPage.propTypes = {
+  message: PropTypes.string,
+  status: PropTypes.string,
+  showAlert: PropTypes.func.isRequired,
+  closeAlert: PropTypes.func.isRequired,
+  onClickCancelButton: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  match: PropTypes.object.isRequired,
+};
 
 export default withAlert(withCreateEditForm(CustomerFormPage, customerService));
