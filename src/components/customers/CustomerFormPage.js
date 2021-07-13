@@ -148,13 +148,13 @@ class CustomerFormPage extends Component {
                   ))}
                   <div className="text-end">
                     <button
-                      className="btn btn-secondary me-2"
+                      className="btn btn-secondary me-2 btn-fix-width"
                       onClick={onClickAddEntity}
                     >
                       +
                     </button>
                     <button
-                      className="btn btn-secondary"
+                      className="btn btn-secondary btn-fix-width"
                       disabled={entities.length <= startLength}
                       onClick={onClickRemoveEntity}
                     >

@@ -20,7 +20,7 @@ const withDeleteModal = OriginalComponent =>
         service.delete(this.state.idToDelete).then(data => {
           this.setState({ idToDelete: null });
           if (data.error) {
-            errorCb(data.error);
+            errorCb(data.errorTitle);
           } else {
             dataCb();
           }

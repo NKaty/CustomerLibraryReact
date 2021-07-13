@@ -12,10 +12,7 @@ const Modal = ({
     <>
       <div className="modal-backdrop opacity-50" />
       <div
-        className="modal fade show d-block"
-        id="staticBackdrop"
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
+        className="modal d-block"
         tabIndex="-1"
         aria-modal="true"
         aria-hidden="true"
@@ -23,9 +20,7 @@ const Modal = ({
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title" id="staticBackdropLabel">
-                {title}
-              </h5>
+              <h5 className="modal-title">{title}</h5>
               <button
                 type="button"
                 onClick={onCancel}

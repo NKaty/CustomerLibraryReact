@@ -21,7 +21,6 @@ const Alert = ({ message, status, onClickCloseButton }) => {
       <button
         type="button"
         className="btn-close"
-        data-bs-dismiss="alert"
         aria-label="Close"
         onClick={onClickCloseButton}
       />
