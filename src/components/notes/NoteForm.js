@@ -1,4 +1,6 @@
-import { Field, ErrorMessage } from 'formik';
+import { Field } from 'formik';
+import PropTypes from 'prop-types';
+import Input from '../common/Input';
 import {
   getNameWithNamespace,
   getPropertyWithNamespace,
@@ -12,29 +14,21 @@ const NoteForm = ({ namespace, errors, touched }) => {
     <>
       <Field name={getName('customerId')} type="text" hidden />
       <Field name={getName('nodeId')} type="text" hidden />
-      <div className="mb-3">
-        <label htmlFor="noteText" className="form-label">
-          Note
-        </label>
-        <Field
-          as="textarea"
-          name={getName('noteText')}
-          id="noteText"
-          className={
-            'form-control' +
-            (getProperty(errors, 'noteText') && getProperty(touched, 'noteText')
-              ? ' is-invalid'
-              : '')
-          }
-        />
-        <ErrorMessage
-          name={getName('noteText')}
-          component="div"
-          className="invalid-feedback d-block"
-        />
-      </div>
+      <Input
+        displayName="Note"
+        isTouched={!!getProperty(touched, 'noteText')}
+        fieldName={getName('noteText')}
+        isError={!!getProperty(errors, 'noteText')}
+        fieldType="textarea"
+      />
     </>
   );
+};
+
+NoteForm.propTypes = {
+  namespace: PropTypes.object,
+  errors: PropTypes.object.isRequired,
+  touched: PropTypes.object.isRequired,
 };
 
 export default NoteForm;
