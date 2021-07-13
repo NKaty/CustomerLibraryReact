@@ -7,12 +7,12 @@ import withCreateEditForm from '../hoc/withCreateEditForm';
 import Alert from '../common/Alert';
 import CustomerForm from './CustomerForm';
 import CreateEditSubmitButtonGroup from '../common/CreateEditSubmitButtonGroup';
+import AddressForm from '../addresses/AddressForm';
 import customerService from '../../services/customer.service';
 import customerValidationSchema from '../../validationSchemas/customer.validationSchema';
 import noteInitialState from '../../initialStates/note.initialState';
 import customerInitialState from '../../initialStates/customer.initialState';
 import addressInitialState from '../../initialStates/address.initialState';
-import AddressForm from '../addresses/AddressForm';
 
 class CustomerFormPage extends Component {
   state = {
@@ -49,6 +49,14 @@ class CustomerFormPage extends Component {
                 customerId: prevState.customer.customerId,
               },
             ],
+          },
+        }));
+      }
+
+      if (!this.state.customer.addresses.length) {
+        this.setState(prevState => ({
+          customer: {
+            ...prevState.customer,
             addresses: [
               {
                 ...addressInitialState,
@@ -83,95 +91,42 @@ class CustomerFormPage extends Component {
     return isNaN(id) ? 0 : id;
   }
 
-  renderNoteForm(values, errors, touched) {
-    const { customer, notesStartLength } = this.state;
-    const { notes } = values;
+  renderSubForm(
+    subForm,
+    startLength,
+    entities,
+    formTitle,
+    subTitle,
+    propertyName,
+    entityName,
+    initialState,
+    errors,
+    touched
+  ) {
+    const { customer } = this.state;
 
     return (
       <div className="mt-4">
-        <h4 className="text-primary">Notes</h4>
+        <h4 className="text-primary">{formTitle}</h4>
         <div className="ms-4">
           <FieldArray
-            name="notes"
+            name={propertyName}
             render={arrayHelpers => {
-              const onClickAddNote = event => {
+              const onClickAddEntity = event => {
                 event.preventDefault();
                 arrayHelpers.push({
-                  ...noteInitialState,
+                  ...initialState,
                   customerId: customer.customerId,
                 });
               };
 
-              const onClickRemoveNote = event => {
+              const onClickRemoveEntity = event => {
                 event.preventDefault();
-                if (notes.length > notesStartLength) {
-                  arrayHelpers.pop();
-                } else {
-                  this.props.showAlert('Cannot remove the last note.', 'error');
-                }
-              };
-
-              return (
-                <>
-                  {notes.map((note, index) => (
-                    <div key={index}>
-                      <NoteForm
-                        namespace={{ property: 'notes', index }}
-                        errors={errors}
-                        touched={touched}
-                      />
-                    </div>
-                  ))}
-                  <div className="text-end">
-                    <button
-                      className="btn btn-secondary me-2"
-                      onClick={onClickAddNote}
-                    >
-                      +
-                    </button>
-                    <button
-                      className="btn btn-secondary"
-                      disabled={notes.length <= notesStartLength}
-                      onClick={onClickRemoveNote}
-                    >
-                      -
-                    </button>
-                  </div>
-                </>
-              );
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  renderAddressForm(values, errors, touched) {
-    const { customer, addressesStartLength } = this.state;
-    const { addresses } = values;
-
-    return (
-      <div className="mt-4">
-        <h4 className="text-primary">Addresses</h4>
-        <div className="ms-4">
-          <FieldArray
-            name="addresses"
-            render={arrayHelpers => {
-              const onClickAddAddress = event => {
-                event.preventDefault();
-                arrayHelpers.push({
-                  ...addressInitialState,
-                  customerId: customer.customerId,
-                });
-              };
-
-              const onClickRemoveAddress = event => {
-                event.preventDefault();
-                if (addresses.length > addressesStartLength) {
+                if (entities.length > startLength) {
                   arrayHelpers.pop();
                 } else {
                   this.props.showAlert(
-                    'Cannot remove the last address.',
+                    `Cannot remove the last ${entityName}.`,
                     'error'
                   );
                 }
@@ -179,27 +134,27 @@ class CustomerFormPage extends Component {
 
               return (
                 <>
-                  {addresses.map((note, index) => (
+                  {entities.map((note, index) => (
                     <div key={index}>
-                      <h5>Address</h5>
-                      <AddressForm
-                        namespace={{ property: 'addresses', index }}
-                        errors={errors}
-                        touched={touched}
-                      />
+                      {subTitle && <h5>{subTitle}</h5>}
+                      {subForm({
+                        namespace: { property: propertyName, index },
+                        errors,
+                        touched,
+                      })}
                     </div>
                   ))}
                   <div className="text-end">
                     <button
                       className="btn btn-secondary me-2"
-                      onClick={onClickAddAddress}
+                      onClick={onClickAddEntity}
                     >
                       +
                     </button>
                     <button
                       className="btn btn-secondary"
-                      disabled={addresses.length <= addressesStartLength}
-                      onClick={onClickRemoveAddress}
+                      disabled={entities.length <= startLength}
+                      onClick={onClickRemoveEntity}
                     >
                       -
                     </button>
@@ -216,7 +171,7 @@ class CustomerFormPage extends Component {
   render() {
     const { message, status, closeAlert, onSubmit, onClickCancelButton } =
       this.props;
-    const { customer } = this.state;
+    const { customer, addressesStartLength, notesStartLength } = this.state;
 
     return (
       <>
@@ -239,8 +194,34 @@ class CustomerFormPage extends Component {
               return (
                 <Form className="flex-fill form">
                   <CustomerForm errors={errors} touched={touched} />
-                  {this.renderAddressForm(values, errors, touched)}
-                  {this.renderNoteForm(values, errors, touched)}
+                  {this.renderSubForm(
+                    props => (
+                      <AddressForm {...props} />
+                    ),
+                    addressesStartLength,
+                    values.addresses,
+                    'Addresses',
+                    'Address',
+                    'addresses',
+                    'address',
+                    addressInitialState,
+                    errors,
+                    touched
+                  )}
+                  {this.renderSubForm(
+                    props => (
+                      <NoteForm {...props} />
+                    ),
+                    notesStartLength,
+                    values.notes,
+                    'Notes',
+                    null,
+                    'notes',
+                    'note',
+                    noteInitialState,
+                    errors,
+                    touched
+                  )}
                   <CreateEditSubmitButtonGroup
                     isSubmitting={isSubmitting}
                     onClickCancelButton={onClickCancelButton}
