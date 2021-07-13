@@ -2,6 +2,7 @@ import { Component } from 'react';
 import { Formik, Form, FieldArray } from 'formik';
 import NoteForm from '../notes/NoteForm';
 import withAlert from '../hoc/withAlert';
+import withCreateEditForm from '../hoc/withCreateEditForm';
 import Alert from '../common/Alert';
 import ButtonLink from '../common/ButtonLink';
 import ButtonSpinner from '../common/ButtonSpinner';
@@ -18,7 +19,6 @@ class CustomerFormPage extends Component {
     addressesStartLength: 1,
     isLoading: true,
     isLoaded: false,
-    isCreateMode: true,
   };
 
   componentDidMount() {
@@ -64,7 +64,6 @@ class CustomerFormPage extends Component {
           notesStartLength: data.notes.length,
           isLoading: false,
           isLoaded: true,
-          isCreateMode: false,
         });
       }
     });
@@ -74,59 +73,6 @@ class CustomerFormPage extends Component {
     const id = parseInt(this.props.match.params.customerId, 10);
     return isNaN(id) ? 0 : id;
   }
-
-  onSubmit = (fields, { setStatus, setSubmitting, setFieldError }) => {
-    setStatus();
-    if (this.state.isCreateMode) {
-      this.createCustomer(fields, setSubmitting, setFieldError);
-    } else {
-      this.updateCustomer(fields, setSubmitting, setFieldError);
-    }
-  };
-
-  showError(error, setFieldError) {
-    if (error.validationErrors) {
-      if (error.validationErrors['']) {
-        this.props.showAlert(error.validationErrors[''][0], 'error');
-      } else {
-        Object.keys(error.validationErrors).forEach(field =>
-          setFieldError(
-            `${field[0].toLowerCase()}${field.slice(1)}`,
-            error.validationErrors[field].join(' ')
-          )
-        );
-      }
-    } else {
-      this.props.showAlert(error.errorTitle, 'error');
-    }
-  }
-
-  createCustomer(fields, setSubmitting, setFieldError) {
-    customerService.create(fields).then(data => {
-      if (data.error) {
-        setSubmitting(false);
-        this.showError(data, setFieldError);
-      } else {
-        this.props.history.goBack();
-      }
-    });
-  }
-
-  updateCustomer(fields, setSubmitting, setFieldError) {
-    customerService.update(this.state.note.noteId, fields).then(data => {
-      if (data.error) {
-        setSubmitting(false);
-        this.showError(data, setFieldError);
-      } else {
-        this.props.history.goBack();
-      }
-    });
-  }
-
-  onClickCancelButton = event => {
-    event.preventDefault();
-    this.props.history.goBack();
-  };
 
   renderNoteForm(values, errors, touched) {
     const { customer, notesStartLength } = this.state;
@@ -191,7 +137,8 @@ class CustomerFormPage extends Component {
   }
 
   render() {
-    const { message, status, closeAlert } = this.props;
+    const { message, status, closeAlert, onSubmit, onClickCancelButton } =
+      this.props;
 
     return (
       <>
@@ -207,7 +154,7 @@ class CustomerFormPage extends Component {
           <Formik
             initialValues={this.state.customer}
             validationSchema={customerValidationSchema}
-            onSubmit={this.onSubmit}
+            onSubmit={onSubmit(this.state.customer.customerId)}
             enableReinitialize
           >
             {({ errors, touched, isSubmitting, handleReset, values }) => {
@@ -228,7 +175,7 @@ class CustomerFormPage extends Component {
                       Reset
                     </button>
                     <ButtonLink
-                      onClickButton={this.onClickCancelButton}
+                      onClickButton={onClickCancelButton}
                       label="Cancel"
                     />
                   </div>
@@ -242,4 +189,4 @@ class CustomerFormPage extends Component {
   }
 }
 
-export default withAlert(CustomerFormPage);
+export default withAlert(withCreateEditForm(CustomerFormPage, customerService));

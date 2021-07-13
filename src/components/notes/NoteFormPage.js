@@ -2,6 +2,7 @@ import { Component } from 'react';
 import { Formik, Form } from 'formik';
 import NoteForm from './NoteForm';
 import withAlert from '../hoc/withAlert';
+import withCreateEditForm from '../hoc/withCreateEditForm';
 import Alert from '../common/Alert';
 import ButtonLink from '../common/ButtonLink';
 import ButtonSpinner from '../common/ButtonSpinner';
@@ -9,40 +10,37 @@ import noteValidationSchema from '../../validationSchemas/note.validationSchema'
 import noteService from '../../services/note.service';
 
 class NoteFormPage extends Component {
+  idName = 'noteId';
+
   state = {
-    note: {
+    entity: {
       noteText: '',
       customerId: this.getIdParam('customerId'),
       noteId: 0,
     },
     isLoading: true,
     isLoaded: false,
-    isCreateMode: true,
   };
 
   componentDidMount() {
-    if (this.state.note.customerId === 0) {
+    this.initializeForm();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevState.isLoading && !prevState.isLoaded) {
+      this.props.closeAlert();
+      this.initializeForm();
+    }
+  }
+
+  initializeForm() {
+    if (this.state.entity.customerId === 0) {
       return this.props.showAlert('Customer is not found.', 'error');
     }
 
     const noteId = this.getIdParam('noteId');
     if (noteId !== 0) {
       this.getData(noteId);
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (!prevState.isLoading && !prevState.isLoaded) {
-      this.props.closeAlert();
-
-      if (this.state.note.customerId === 0) {
-        return this.props.showAlert('Customer is not found.', 'error');
-      }
-
-      const noteId = this.getIdParam('noteId');
-      if (noteId !== 0) {
-        this.getData(noteId);
-      }
     }
   }
 
@@ -53,10 +51,9 @@ class NoteFormPage extends Component {
         this.props.showAlert(data.errorTitle, 'error');
       } else {
         this.setState({
-          note: data,
+          entity: data,
           isLoading: false,
           isLoaded: true,
-          isCreateMode: false,
         });
       }
     });
@@ -67,61 +64,9 @@ class NoteFormPage extends Component {
     return isNaN(id) ? 0 : id;
   }
 
-  onSubmit = (fields, { setStatus, setSubmitting, setFieldError }) => {
-    setStatus();
-    if (this.state.isCreateMode) {
-      this.createNote(fields, setSubmitting, setFieldError);
-    } else {
-      this.updateNote(fields, setSubmitting, setFieldError);
-    }
-  };
-
-  showError(error, setFieldError) {
-    if (error.validationErrors) {
-      if (error.validationErrors['']) {
-        this.props.showAlert(error.validationErrors[''][0], 'error');
-      } else {
-        Object.keys(error.validationErrors).forEach(field =>
-          setFieldError(
-            `${field[0].toLowerCase()}${field.slice(1)}`,
-            error.validationErrors[field].join(' ')
-          )
-        );
-      }
-    } else {
-      this.props.showAlert(error.errorTitle, 'error');
-    }
-  }
-
-  createNote(fields, setSubmitting, setFieldError) {
-    noteService.create(fields).then(data => {
-      if (data.error) {
-        setSubmitting(false);
-        this.showError(data, setFieldError);
-      } else {
-        this.props.history.goBack();
-      }
-    });
-  }
-
-  updateNote(fields, setSubmitting, setFieldError) {
-    noteService.update(this.state.note.noteId, fields).then(data => {
-      if (data.error) {
-        setSubmitting(false);
-        this.showError(data, setFieldError);
-      } else {
-        this.props.history.goBack();
-      }
-    });
-  }
-
-  onClickCancelButton = event => {
-    event.preventDefault();
-    this.props.history.goBack();
-  };
-
   render() {
-    const { message, status, closeAlert } = this.props;
+    const { message, status, closeAlert, onSubmit, onClickCancelButton } =
+      this.props;
     return (
       <>
         {message && (
@@ -134,9 +79,9 @@ class NoteFormPage extends Component {
         <h2 className="text-primary text-center my-5">Note Form</h2>
         <div className="d-flex justify-content-center">
           <Formik
-            initialValues={this.state.note}
+            initialValues={this.state.entity}
             validationSchema={noteValidationSchema}
-            onSubmit={this.onSubmit}
+            onSubmit={onSubmit(this.state.entity.noteId)}
             enableReinitialize
           >
             {({ errors, touched, isSubmitting, handleReset }) => {
@@ -156,7 +101,7 @@ class NoteFormPage extends Component {
                       Reset
                     </button>
                     <ButtonLink
-                      onClickButton={this.onClickCancelButton}
+                      onClickButton={onClickCancelButton}
                       label="Cancel"
                     />
                   </div>
@@ -170,4 +115,4 @@ class NoteFormPage extends Component {
   }
 }
 
-export default withAlert(NoteFormPage);
+export default withAlert(withCreateEditForm(NoteFormPage, noteService));

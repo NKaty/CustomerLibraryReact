@@ -25,7 +25,7 @@ function create(params) {
 }
 
 function update(noteId, params) {
-  return fetchWrapper.put(`${baseUrl}/${noteId}`);
+  return fetchWrapper.put(`${baseUrl}/${noteId}`, params);
 }
 
 function _delete(noteId) {
