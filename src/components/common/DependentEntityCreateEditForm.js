@@ -6,6 +6,7 @@ import withAlert from '../hoc/withAlert';
 import withCreateEditForm from '../hoc/withCreateEditForm';
 import Alert from '../common/Alert';
 import CreateEditSubmitButtonGroup from '../common/CreateEditSubmitButtonGroup';
+import { convertNullToEmptyString } from '../../utils/convertNullableFields';
 
 class DependentEntityCreateEditForm extends Component {
   state = {
@@ -50,7 +51,7 @@ class DependentEntityCreateEditForm extends Component {
         showAlert(data.errorTitle, 'error');
       } else {
         this.setState({
-          entity: data,
+          entity: convertNullToEmptyString(data),
           isLoading: false,
           isLoaded: true,
         });

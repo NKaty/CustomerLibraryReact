@@ -1,13 +1,17 @@
+import { convertEmptyStringToNull } from '../../utils/convertNullableFields';
+
 const withCreateEditForm = OriginalComponent =>
   function WithCreateEditForm(props) {
     const onSubmit =
       (id, service) =>
       (fields, { setStatus, setSubmitting, setFieldError }) => {
+        const preparedFields = convertEmptyStringToNull(fields);
         setStatus();
+
         if (!id) {
-          create(service, fields, setSubmitting, setFieldError);
+          create(service, preparedFields, setSubmitting, setFieldError);
         } else {
-          update(service, fields, id, setSubmitting, setFieldError);
+          update(service, preparedFields, id, setSubmitting, setFieldError);
         }
       };
 

@@ -13,6 +13,7 @@ import customerValidationSchema from '../../validationSchemas/customer.validatio
 import noteInitialState from '../../initialStates/note.initialState';
 import customerInitialState from '../../initialStates/customer.initialState';
 import addressInitialState from '../../initialStates/address.initialState';
+import { convertNullToEmptyString } from '../../utils/convertNullableFields';
 
 class CustomerFormPage extends Component {
   state = {
@@ -75,8 +76,9 @@ class CustomerFormPage extends Component {
         this.setState({ isLoading: false, isLoaded: true });
         this.props.showAlert(data.errorTitle, 'error');
       } else {
+        console.log(convertNullToEmptyString(data));
         this.setState({
-          customer: data,
+          customer: convertNullToEmptyString(data),
           notesStartLength: data.notes.length,
           addressesStartLength: data.addresses.length,
           isLoading: false,

@@ -4,9 +4,10 @@ const addressSchema = Yup.object().shape({
   addressLine: Yup.string()
     .required('The field is required.')
     .max(100, 'The field length must be at most 100 characters long.'),
-  addressLine2: Yup.string()
-    .nullable()
-    .max(100, 'The field length must be at most 100 characters long.'),
+  addressLine2: Yup.string().max(
+    100,
+    'The field length must be at most 100 characters long.'
+  ),
   addressType: Yup.string()
     .required('The field is required.')
     .oneOf(
