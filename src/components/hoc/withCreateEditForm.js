@@ -15,17 +15,30 @@ const withCreateEditForm = OriginalComponent =>
         }
       };
 
+    const convertLetterToLowCase = (str, idx) =>
+      `${str.slice(0, idx)}${str[idx].toLowerCase()}${str.slice(idx + 1)}`;
+
+    const convertLettersToLowCase = str => {
+      let convertedStr = convertLetterToLowCase(str, 0);
+      const dotIdx = str.indexOf('.');
+      if (dotIdx !== -1) {
+        convertedStr = convertLetterToLowCase(convertedStr, dotIdx + 1);
+      }
+
+      return convertedStr;
+    };
+
     const showError = (error, setFieldError) => {
       if (error.validationErrors) {
         if (error.validationErrors['']) {
           props.showAlert(error.validationErrors[''][0], 'error');
         } else {
-          Object.keys(error.validationErrors).forEach(field =>
+          Object.keys(error.validationErrors).forEach(field => {
             setFieldError(
-              `${field[0].toLowerCase()}${field.slice(1)}`,
+              convertLettersToLowCase(field),
               error.validationErrors[field].join(' ')
-            )
-          );
+            );
+          });
         }
       } else {
         props.showAlert(error.errorTitle, 'error');

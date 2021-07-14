@@ -9,7 +9,6 @@ const withDeleteModal = OriginalComponent =>
 
     openModal = id => event => {
       event.preventDefault();
-      console.log();
       this.setState({ isModalOpen: true, idToDelete: id });
     };
 
