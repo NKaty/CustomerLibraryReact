@@ -1,11 +1,11 @@
-import { Redirect, Switch, Route } from 'react-router-dom';
+import { Redirect, Switch, Route, BrowserRouter } from 'react-router-dom';
 import Header from './components/Header';
 import ContentLayout from './components/ContentLayout';
 import CustomerRouter from './components/customers/CustomerRouter';
 
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <Header />
       <ContentLayout>
         <Switch>
@@ -13,7 +13,7 @@ function App() {
           <Redirect from="*" to="/customers" />
         </Switch>
       </ContentLayout>
-    </>
+    </BrowserRouter>
   );
 }
 
