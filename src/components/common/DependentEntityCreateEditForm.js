@@ -8,7 +8,7 @@ import Alert from '../common/Alert';
 import CreateEditSubmitButtonGroup from '../common/CreateEditSubmitButtonGroup';
 import { convertNullToEmptyString } from '../../utils/convertNullableFields';
 
-class DependentEntityCreateEditForm extends Component {
+export class DependentEntityCreateEditForm extends Component {
   state = {
     entity: {
       ...this.props.entityProps.initialState,
@@ -25,7 +25,7 @@ class DependentEntityCreateEditForm extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (!prevState.isLoading && !prevState.isLoaded) {
       this.props.closeAlert();
-      this.initializeForm();
+      return this.initializeForm();
     }
   }
 
@@ -33,19 +33,20 @@ class DependentEntityCreateEditForm extends Component {
     const { entityProps, showAlert } = this.props;
 
     if (this.state.entity.customerId === 0) {
+      this.setState({ isLoading: false, isLoaded: true });
       return showAlert('Customer is not found.', 'error');
     }
 
     const entityId = this.getIdParam(entityProps.idName);
     if (entityId !== 0) {
-      this.getData(entityId);
+      return this.getData(entityId);
     }
   }
 
   getData(id) {
     const { entityProps, showAlert } = this.props;
 
-    entityProps.service.getById(id).then(data => {
+    return entityProps.service.getById(id).then(data => {
       if (data.error) {
         this.setState({ isLoading: false, isLoaded: true });
         showAlert(data.errorTitle, 'error');
@@ -65,6 +66,7 @@ class DependentEntityCreateEditForm extends Component {
   }
 
   render() {
+    const { entity } = this.state;
     const {
       message,
       status,
@@ -88,9 +90,9 @@ class DependentEntityCreateEditForm extends Component {
         <h2 className="text-primary text-center my-5">{formTitle}</h2>
         <div className="d-flex justify-content-center">
           <Formik
-            initialValues={this.state.entity}
+            initialValues={entity}
             validationSchema={validationSchema}
-            onSubmit={onSubmit(this.state.entity[idName], service)}
+            onSubmit={onSubmit(entity[idName], service)}
             enableReinitialize
           >
             {({ errors, touched, isSubmitting, handleReset }) => {

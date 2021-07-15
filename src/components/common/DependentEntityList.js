@@ -10,7 +10,7 @@ import Spinner from '../common/Spinner';
 import withDeleteModal from '../hoc/withDeleteModal';
 import withAlert from '../hoc/withAlert';
 
-class DependentEntityList extends Component {
+export class DependentEntityList extends Component {
   state = {
     entities: [],
     isLoading: true,
@@ -37,7 +37,8 @@ class DependentEntityList extends Component {
 
     const customerId = this.getCustomerId();
     if (isNaN(customerId) || customerId === 0) {
-      showAlert('Customer is not found.', 'error');
+      this.setState({ isLoading: false, isLoaded: true });
+      return showAlert('Customer is not found.', 'error');
     }
 
     entityProps.service.getByCustomerId(customerId).then(data => {
@@ -154,6 +155,7 @@ class DependentEntityList extends Component {
 DependentEntityList.propTypes = {
   location: PropTypes.object.isRequired,
   match: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
   isModalOpen: PropTypes.bool.isRequired,
   message: PropTypes.string,
   status: PropTypes.string,

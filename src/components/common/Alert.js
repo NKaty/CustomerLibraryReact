@@ -30,8 +30,12 @@ const Alert = ({ message, status, onClickCloseButton }) => {
 
 Alert.propTypes = {
   message: PropTypes.string.isRequired,
-  status: PropTypes.string.isRequired,
+  status: PropTypes.string,
   onClickCloseButton: PropTypes.func.isRequired,
+};
+
+Alert.defaultProps = {
+  status: 'alert-info',
 };
 
 export default Alert;
