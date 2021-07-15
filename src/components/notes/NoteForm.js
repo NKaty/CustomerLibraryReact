@@ -13,7 +13,7 @@ const NoteForm = ({ namespace, errors, touched }) => {
   return (
     <>
       <Field name={getName('customerId')} type="text" hidden />
-      <Field name={getName('nodeId')} type="text" hidden />
+      <Field name={getName('noteId')} type="text" hidden />
       <Input
         displayName="Note"
         isTouched={!!getProperty(touched, 'noteText')}
