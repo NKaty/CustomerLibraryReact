@@ -11,7 +11,9 @@ describe('NoteForm', () => {
     };
     const wrapper = shallow(<NoteForm {...props} />);
     expect(wrapper.find('Field').at(0).prop('name')).toBe('customerId');
+    expect(wrapper.find('Field').at(0).prop('hidden')).toBe(true);
     expect(wrapper.find('Field').at(1).prop('name')).toBe('noteId');
+    expect(wrapper.find('Field').at(1).prop('hidden')).toBe(true);
     expect(wrapper.find('Input').at(0).prop('fieldName')).toBe('noteText');
     expect(wrapper.find('Input').at(0).prop('fieldType')).toBe('textarea');
   });

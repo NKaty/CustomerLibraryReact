@@ -13,8 +13,8 @@ const AddressForm = ({ namespace, errors, touched }) => {
 
   return (
     <>
-      <Field name="customerId" type="text" hidden />
-      <Field name="addressId" type="text" hidden />
+      <Field name={getName('customerId')} type="text" hidden />
+      <Field name={getName('addressId')} type="text" hidden />
       <Input
         displayName="Address Line"
         isTouched={!!getProperty(touched, 'addressLine')}
