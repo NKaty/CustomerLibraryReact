@@ -1,7 +1,7 @@
 import { Component } from 'react';
 
 const withAlert = OriginalComponent =>
-  class WithDeleteModal extends Component {
+  class WithAlert extends Component {
     state = {
       message: null,
       status: null,

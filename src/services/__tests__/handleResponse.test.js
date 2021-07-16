@@ -52,6 +52,21 @@ describe('handleResponse', () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
+  it('should return error from server with default error title', async () => {
+    fetch.mockResponseOnce(JSON.stringify({}), {
+      status: 404,
+      headers: { 'content-type': 'application/json' },
+    });
+    const data = await handleResponse('notes', {});
+
+    expect(data).toStrictEqual({
+      error: true,
+      errorTitle: 'Something went wrong.',
+      validationErrors: null,
+    });
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
   it('should return validation errors from server', async () => {
     fetch.mockResponseOnce(
       JSON.stringify({

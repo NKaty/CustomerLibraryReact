@@ -12,7 +12,7 @@ const CustomerForm = ({ namespace, errors, touched }) => {
 
   return (
     <>
-      <Field name="customerId" type="text" hidden />
+      <Field name={getName('customerId')} type="text" hidden />
       <Input
         displayName="First Name"
         isTouched={!!getProperty(touched, 'firstName')}

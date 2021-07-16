@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import ButtonSpinner from '../Spinner';
+import ButtonSpinner from '../ButtonSpinner';
 
 describe('ButtonSpinner', () => {
-  it('should render a spinner', () => {
+  it('should render a button spinner', () => {
     const wrapper = shallow(<ButtonSpinner />);
-    expect(wrapper.find('span').length).toBe(1);
+    expect(wrapper.find('.spinner-border').length).toBe(1);
   });
 });

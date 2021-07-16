@@ -19,6 +19,18 @@ describe('AddressForm', () => {
     expect(wrapper.find('Input').at(2).prop('fieldName')).toBe('city');
     expect(wrapper.find('Input').at(3).prop('fieldName')).toBe('postalCode');
     expect(wrapper.find('Input').at(4).prop('fieldName')).toBe('state');
+    expect(wrapper.find('Select').at(0).prop('fieldName')).toBe('addressType');
+    expect(wrapper.find('Select').at(0).prop('options')).toStrictEqual([
+      '',
+      'Shipping',
+      'Billing',
+    ]);
+    expect(wrapper.find('Select').at(1).prop('fieldName')).toBe('country');
+    expect(wrapper.find('Select').at(1).prop('options')).toStrictEqual([
+      '',
+      'United States',
+      'Canada',
+    ]);
   });
 
   it('should render the form as a sub form', () => {
@@ -48,6 +60,12 @@ describe('AddressForm', () => {
     );
     expect(wrapper.find('Input').at(4).prop('fieldName')).toBe(
       'addresses.0.state'
+    );
+    expect(wrapper.find('Select').at(0).prop('fieldName')).toBe(
+      'addresses.0.addressType'
+    );
+    expect(wrapper.find('Select').at(1).prop('fieldName')).toBe(
+      'addresses.0.country'
     );
   });
 });

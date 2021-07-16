@@ -11,7 +11,7 @@ import withDeleteModal from '../hoc/withDeleteModal';
 import withAlert from '../hoc/withAlert';
 import customerService from '../../services/customer.service';
 
-class CustomerList extends Component {
+export class CustomerList extends Component {
   columns = [
     { name: 'firstName', displayName: 'First Name' },
     { name: 'lastName', displayName: 'Last Name' },
