@@ -29,7 +29,7 @@ const withDeleteModal = OriginalComponent =>
 
     onClickModalCancelButton = event => {
       event.preventDefault();
-      this.setState({ isModalOpen: false });
+      this.setState({ isModalOpen: false, idToDelete: null });
     };
 
     render() {

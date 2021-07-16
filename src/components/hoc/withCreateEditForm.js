@@ -1,4 +1,5 @@
 import { convertEmptyStringToNull } from '../../utils/convertNullableFields';
+import { convertLettersToLowCase } from '../../utils/convertToLowCase';
 
 const withCreateEditForm = OriginalComponent =>
   function WithCreateEditForm(props) {
@@ -14,19 +15,6 @@ const withCreateEditForm = OriginalComponent =>
           update(service, preparedFields, id, setSubmitting, setFieldError);
         }
       };
-
-    const convertLetterToLowCase = (str, idx) =>
-      `${str.slice(0, idx)}${str[idx].toLowerCase()}${str.slice(idx + 1)}`;
-
-    const convertLettersToLowCase = str => {
-      let convertedStr = convertLetterToLowCase(str, 0);
-      const dotIdx = str.indexOf('.');
-      if (dotIdx !== -1) {
-        convertedStr = convertLetterToLowCase(convertedStr, dotIdx + 1);
-      }
-
-      return convertedStr;
-    };
 
     const showError = (error, setFieldError) => {
       if (error.validationErrors) {
