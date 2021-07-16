@@ -65,13 +65,13 @@ class CustomerList extends Component {
 
   getData = () => {
     customerService.getPage(...this.getPageParams()).then(data => {
-      if (data.error) {
+      if (data && data.error) {
         this.setState({ isLoading: false, isLoaded: true });
         this.props.showAlert(data.errorTitle, 'error');
       } else {
         this.setState({
-          customers: data.customers,
-          totalCount: data.totalCount,
+          customers: data && data.customers ? data.customers : [],
+          totalCount: data && data.totalCount ? data.totalCount : 0,
           isLoading: false,
           isLoaded: true,
         });

@@ -47,7 +47,7 @@ const withCreateEditForm = OriginalComponent =>
 
     const create = (service, fields, setSubmitting, setFieldError) => {
       service.create(fields).then(data => {
-        if (data.error) {
+        if (data && data.error) {
           setSubmitting(false);
           showError(data, setFieldError);
         } else {
@@ -58,7 +58,7 @@ const withCreateEditForm = OriginalComponent =>
 
     const update = (service, fields, id, setSubmitting, setFieldError) => {
       service.update(id, fields).then(data => {
-        if (data.error) {
+        if (data && data.error) {
           setSubmitting(false);
           showError(data, setFieldError);
         } else {

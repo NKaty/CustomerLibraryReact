@@ -1,9 +1,13 @@
+import handleResponse from './handleResponse';
+
 const fetchWrapper = {
   get,
   post,
   put,
   delete: _delete,
 };
+
+export default fetchWrapper;
 
 function get(url) {
   const requestOptions = {
@@ -36,25 +40,3 @@ function _delete(url) {
   };
   return handleResponse(url, requestOptions);
 }
-
-function handleResponse(url, requestOptions) {
-  let error = false;
-  return fetch(url, requestOptions)
-    .then(response => {
-      error = !response.ok;
-      return response.text();
-    })
-    .then(text => {
-      const data = text && JSON.parse(text);
-      if (error)
-        return {
-          error: true,
-          errorTitle: data ? data.title : 'Something went wrong.',
-          validationErrors: (data && data.errors) ?? null,
-        };
-      return data;
-    })
-    .catch(() => ({ error: 'Something went wrong.' }));
-}
-
-export default fetchWrapper;

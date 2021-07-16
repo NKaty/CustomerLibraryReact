@@ -72,11 +72,10 @@ class CustomerFormPage extends Component {
 
   getData(id) {
     customerService.getById(id).then(data => {
-      if (data.error) {
+      if (data && data.error) {
         this.setState({ isLoading: false, isLoaded: true });
         this.props.showAlert(data.errorTitle, 'error');
-      } else {
-        console.log(convertNullToEmptyString(data));
+      } else if (data) {
         this.setState({
           customer: convertNullToEmptyString(data),
           notesStartLength: data.notes.length,

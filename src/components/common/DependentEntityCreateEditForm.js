@@ -47,10 +47,10 @@ export class DependentEntityCreateEditForm extends Component {
     const { entityProps, showAlert } = this.props;
 
     return entityProps.service.getById(id).then(data => {
-      if (data.error) {
+      if (data && data.error) {
         this.setState({ isLoading: false, isLoaded: true });
         showAlert(data.errorTitle, 'error');
-      } else {
+      } else if (data) {
         this.setState({
           entity: convertNullToEmptyString(data),
           isLoading: false,

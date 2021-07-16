@@ -42,12 +42,12 @@ export class DependentEntityList extends Component {
     }
 
     entityProps.service.getByCustomerId(customerId).then(data => {
-      if (data.error) {
+      if (data && data.error) {
         this.setState({ isLoading: false, isLoaded: true });
         showAlert(data.errorTitle, 'error');
       } else {
         this.setState({
-          entities: data,
+          entities: data ?? [],
           isLoading: false,
           isLoaded: true,
         });
