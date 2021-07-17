@@ -30,7 +30,7 @@ export class CustomerList extends Component {
 
   state = {
     customers: [],
-    totalCount: null,
+    totalCount: 0,
     isLoading: true,
     isLoaded: false,
   };
@@ -81,6 +81,7 @@ export class CustomerList extends Component {
 
   prepareData(customers) {
     return customers.map(item => {
+      item = { ...item };
       item.addresses = (
         <PrimaryLink
           to={{
@@ -120,6 +121,7 @@ export class CustomerList extends Component {
   getDeleteModalProps() {
     const { onClickModalCancelButton, onClickModalDeleteButton, showAlert } =
       this.props;
+    const errorCb = error => showAlert(error, 'error');
 
     return {
       title: 'Delete customer',
@@ -129,7 +131,7 @@ export class CustomerList extends Component {
       onCancel: onClickModalCancelButton,
       onAction: onClickModalDeleteButton(
         customerService,
-        error => showAlert(error, 'error'),
+        errorCb,
         this.getData
       ),
     };
@@ -155,7 +157,7 @@ export class CustomerList extends Component {
         )}
         <h2 className="text-primary my-4">Customers</h2>
         <p>
-          <PrimaryLink to={`/customers/create/`}>Create New</PrimaryLink>
+          <PrimaryLink to={'/customers/create/'}>Create New</PrimaryLink>
         </p>
         <Table columns={this.columns} data={this.prepareData(customers)} />
         <Pagination
