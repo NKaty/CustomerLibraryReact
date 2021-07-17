@@ -64,6 +64,7 @@ export class DependentEntityList extends Component {
     } = this.props;
 
     const { name, service } = entityProps;
+    const errorCb = error => showAlert(error, 'error');
 
     return {
       title: `Delete ${name}`,
@@ -71,11 +72,7 @@ export class DependentEntityList extends Component {
       cancelButtonLabel: 'Cancel',
       actionButtonLabel: 'Delete',
       onCancel: onClickModalCancelButton,
-      onAction: onClickModalDeleteButton(
-        service,
-        error => showAlert(error, 'error'),
-        this.getData
-      ),
+      onAction: onClickModalDeleteButton(service, errorCb, this.getData),
     };
   }
 
@@ -92,6 +89,7 @@ export class DependentEntityList extends Component {
     } = this.props;
 
     return data.map(item => {
+      item = { ...item };
       item.actions = (
         <>
           <PrimaryLink to={`${location.pathname}edit/${item[idName]}/`}>

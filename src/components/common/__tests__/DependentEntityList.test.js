@@ -1,9 +1,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import DependentEntityListFull, {
-  DependentEntityList,
-} from '../DependentEntityList';
 import { BrowserRouter } from 'react-router-dom';
+import { DependentEntityList } from '../DependentEntityList';
 
 describe('DependentEntityList', () => {
   afterEach(() => {
@@ -12,11 +10,17 @@ describe('DependentEntityList', () => {
   });
 
   const props = {
-    location: { pathname: '/' },
+    location: { pathname: '/notes/' },
     match: { params: { customerId: 2 } },
+    isModalOpen: false,
+    openModal: () => () => {},
+    showAlert: () => {},
+    closeAlert: () => {},
+    onClickModalCancelButton: () => {},
+    onClickModalDeleteButton: () => () => {},
     history: {},
     entityProps: {
-      name: 'notes',
+      name: 'note',
       service: {
         getByCustomerId: () => Promise.resolve([{}]),
       },
@@ -30,79 +34,214 @@ describe('DependentEntityList', () => {
   };
 
   it('should render a spinner', () => {
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...props} />
-      </BrowserRouter>
-    );
+    const wrapper = shallow(<DependentEntityList {...props} />);
     expect(wrapper.find('Spinner').length).toBe(1);
   });
 
   it('should render an entity table', async () => {
-    const getByCustomerIdMock = () =>
-      Promise.resolve([{ noteId: 1, customerId: 2, noteText: 'Note1' }]);
-    const currentProps = { ...props };
-    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
+    const wrapper = shallow(<DependentEntityList {...props} />);
+    await wrapper.update();
 
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
-    );
-
-    await wrapper.instance().componentDidMount();
-    wrapper.update();
-
-    expect(wrapper.find('table').length).toBe(1);
-    expect(
-      wrapper.find('DependentEntityList').instance().state.entities[0].noteText
-    ).toBe('Note1');
-    expect(wrapper.find('table td').at(1).find('PrimaryLink').text()).toBe(
-      'Edit'
-    );
-    expect(wrapper.find('table td').at(1).find('PrimaryLink').prop('to')).toBe(
-      '/edit/1/'
-    );
-    expect(wrapper.find('table td').at(1).find('ButtonLink').text()).toBe(
-      'Delete'
-    );
-    expect(wrapper.find('PrimaryLink').at(0).text()).toBe('Create New');
-    expect(wrapper.find('PrimaryLink').at(0).prop('to')).toBe('/create/');
+    expect(wrapper.find('Table').length).toBe(1);
   });
 
-  it('should render an error message from server', async () => {
+  it('should render a correct title', async () => {
+    const wrapper = shallow(<DependentEntityList {...props} />);
+    await wrapper.update();
+
+    expect(wrapper.find('h2').text()).toBe('Notes');
+
+    wrapper.setProps({ location: { pathname: '/notes/', state: 'Bob Smith' } });
+    expect(wrapper.find('h2').text()).toBe('Notes for customer Bob Smith');
+  });
+
+  it('should render an alert', async () => {
+    const currentProps = {
+      ...props,
+      message: 'Error',
+    };
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+
+    expect(wrapper.find('Alert').length).toBe(1);
+  });
+
+  it('should call showAlert for a message from server', async () => {
     const getByCustomerIdMock = () =>
       Promise.resolve({ error: true, errorTitle: 'Test' });
+    const showAlertMock = jest.fn(() => {});
+    const currentProps = { ...props, showAlert: showAlertMock };
+    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+
+    expect(showAlertMock).toHaveBeenCalledTimes(1);
+    expect(showAlertMock).toBeCalledWith('Test', 'error');
+  });
+
+  it('should call showAlert for an invalid customerId', async () => {
+    const showAlertMock = jest.fn(() => {});
+    const currentProps = {
+      ...props,
+      showAlert: showAlertMock,
+      match: { params: { customerId: 'id' } },
+    };
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+
+    expect(showAlertMock).toHaveBeenCalledTimes(1);
+    expect(showAlertMock).toBeCalledWith('Customer is not found.', 'error');
+  });
+
+  it('should render an delete modal', async () => {
+    const currentProps = {
+      ...props,
+      isModalOpen: true,
+    };
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+
+    expect(wrapper.find('Modal').length).toBe(1);
+  });
+
+  it('should render a create customer link', async () => {
+    const wrapper = shallow(<DependentEntityList {...props} />);
+    await wrapper.update();
+
+    expect(wrapper.find('PrimaryLink').props().to).toBe('/notes/create/');
+  });
+
+  it('should set state for empty response', async () => {
+    const getByCustomerIdMock = jest.fn(() => Promise.resolve());
     const currentProps = { ...props };
     currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
 
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
-    );
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
 
-    await wrapper.instance().componentDidMount();
-    wrapper.update();
-
-    expect(wrapper.find('Alert').length).toBe(1);
-    expect(wrapper.find('Alert').text()).toBe('Test');
+    expect(wrapper.instance().state).toStrictEqual({
+      entities: [],
+      isLoading: false,
+      isLoaded: true,
+    });
+    expect(getByCustomerIdMock).toHaveBeenCalledTimes(1);
   });
 
-  it('should render an error message on invalid customerId', () => {
-    const currentProps = { ...props, match: { params: { customerId: 'id' } } };
-
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
+  it('should set state for response with data', async () => {
+    const getByCustomerIdMock = jest.fn(() =>
+      Promise.resolve([{ noteId: 1, customerId: 2, noteText: 'Note1' }])
     );
+    const currentProps = { ...props };
+    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
 
-    expect(wrapper.find('Alert').length).toBe(1);
-    expect(wrapper.find('Alert').text()).toBe('Customer is not found.');
+    expect(wrapper.instance().state).toStrictEqual({
+      entities: [{ noteId: 1, customerId: 2, noteText: 'Note1' }],
+      isLoading: false,
+      isLoaded: true,
+    });
+    expect(getByCustomerIdMock).toHaveBeenCalledTimes(1);
   });
 
-  it('should call handler on return button click', () => {
+  it('should set state for response with error', async () => {
+    const getByCustomerIdMock = jest.fn(() =>
+      Promise.resolve({ error: true, errorTitle: 'Test' })
+    );
+    const showAlertMock = jest.fn(() => {});
+    const currentProps = { ...props, showAlert: showAlertMock };
+    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+
+    expect(wrapper.instance().state).toStrictEqual({
+      entities: [],
+      isLoading: false,
+      isLoaded: true,
+    });
+    expect(getByCustomerIdMock).toHaveBeenCalledTimes(1);
+    expect(showAlertMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call close alert message and getByCustomerId method on update', async () => {
+    const getByCustomerIdMock = jest.fn(() => Promise.resolve());
+    const closeAlertMock = jest.fn(() => {});
+    const currentProps = { ...props, closeAlert: closeAlertMock };
+    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+
+    wrapper.instance().state.isLoaded = false;
+    wrapper.instance().state.isLoading = false;
+    wrapper.setProps({});
+    expect(closeAlertMock).toHaveBeenCalledTimes(1);
+    expect(getByCustomerIdMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('should not call close alert message and getByCustomerId method on update if isLoaded is true', async () => {
+    const getByCustomerIdMock = jest.fn(() => Promise.resolve());
+    const closeAlertMock = jest.fn(() => {});
+    const currentProps = { ...props, closeAlert: closeAlertMock };
+    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+
+    wrapper.instance().state.isLoaded = true;
+    wrapper.instance().state.isLoading = false;
+    wrapper.setProps({});
+    expect(closeAlertMock).toHaveBeenCalledTimes(0);
+    expect(getByCustomerIdMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not call close alert message and getByCustomerId method on update if isLoading is true', async () => {
+    const getByCustomerIdMock = jest.fn(() => Promise.resolve());
+    const closeAlertMock = jest.fn(() => {});
+    const currentProps = { ...props, closeAlert: closeAlertMock };
+    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+
+    wrapper.instance().state.isLoaded = false;
+    wrapper.instance().state.isLoading = true;
+    wrapper.setProps({});
+    expect(closeAlertMock).toHaveBeenCalledTimes(0);
+    expect(getByCustomerIdMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return correct delete modal props', async () => {
+    const getByCustomerIdMock = () => Promise.resolve();
+    const onClickModalDeleteButtonMock = jest.fn();
+    const currentProps = {
+      ...props,
+      onClickModalDeleteButton: onClickModalDeleteButtonMock,
+    };
+    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
+
+    const wrapper = shallow(<DependentEntityList {...currentProps} />);
+    await wrapper.update();
+    const errorModalProps = wrapper.instance().getDeleteModalProps();
+    delete errorModalProps.onAction;
+    errorModalProps.onCancel = errorModalProps.onCancel.name;
+
+    expect(errorModalProps).toStrictEqual({
+      title: 'Delete note',
+      body: 'Are you sure you want to delete this note?',
+      cancelButtonLabel: 'Cancel',
+      actionButtonLabel: 'Delete',
+      onCancel: 'onClickModalCancelButton',
+    });
+    expect(onClickModalDeleteButtonMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call goBack on return button click', async () => {
     const goBackMock = jest.fn(() => {});
     const currentProps = {
       ...props,
@@ -112,54 +251,18 @@ describe('DependentEntityList', () => {
 
     const wrapper = mount(
       <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...currentProps} />
+        <DependentEntityList {...currentProps} />
       </BrowserRouter>
     );
 
-    expect(wrapper.find('ButtonLink').at(0).text()).toBe('Return to Customers');
-    wrapper.find('ButtonLink').at(0).simulate('click');
+    await wrapper.update();
+
+    expect(wrapper.find('ButtonLink').text()).toBe('Return to Customers');
+    wrapper.find('ButtonLink').simulate('click');
     expect(goBackMock).toHaveBeenCalledTimes(1);
   });
 
-  it('should close the error message on close button click', async () => {
-    const getByCustomerIdMock = () =>
-      Promise.resolve({ error: true, errorTitle: 'Test' });
-    const currentProps = { ...props };
-    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
-
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
-    );
-
-    await wrapper.instance().componentDidMount();
-    wrapper.update();
-    expect(wrapper.find('Alert').length).toBe(1);
-  });
-
-  it('should open a delete modal', async () => {
-    const getByCustomerIdMock = () =>
-      Promise.resolve([
-        { noteId: 1, customerId: 2, noteText: 'Note1' },
-        { noteId: 2, customerId: 2, noteText: 'Note2' },
-      ]);
-    const currentProps = { ...props };
-    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
-
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...currentProps} />)
-      </BrowserRouter>
-    );
-
-    await wrapper.instance().componentDidMount();
-    wrapper.update();
-    wrapper.find('table td').at(1).find('ButtonLink').simulate('click');
-    expect(wrapper.find('Modal').length).toBe(1);
-  });
-
-  it('should not open a delete modal for the last entity', async () => {
+  it('should render correct link for edit', async () => {
     const getByCustomerIdMock = jest.fn(() =>
       Promise.resolve([{ noteId: 1, customerId: 2, noteText: 'Note1' }])
     );
@@ -168,58 +271,64 @@ describe('DependentEntityList', () => {
 
     const wrapper = mount(
       <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...currentProps} />)
+        <DependentEntityList {...props} />
       </BrowserRouter>
     );
-
     await wrapper.instance().componentDidMount();
-    wrapper.update();
-    wrapper.find('table td').at(1).find('ButtonLink').simulate('click');
-    expect(wrapper.find('Modal').length).toBe(0);
+    await wrapper.update();
+
+    expect(wrapper.find('PrimaryLink').at(1).text()).toBe('Edit');
+    expect(wrapper.find('PrimaryLink').at(1).props().to).toStrictEqual(
+      '/notes/edit/1/'
+    );
   });
 
-  it('should call delete handler', async () => {
+  it('should delete button open a delete modal', async () => {
     const getByCustomerIdMock = () =>
       Promise.resolve([
         { noteId: 1, customerId: 2, noteText: 'Note1' },
         { noteId: 2, customerId: 2, noteText: 'Note2' },
       ]);
-    const deleteMock = jest.fn(() => Promise.resolve({}));
-    const currentProps = { ...props };
+    const onClickDeleteButtonMock = jest.fn(() => {});
+    const openModalMock = jest.fn(() => onClickDeleteButtonMock);
+    const currentProps = { ...props, openModal: openModalMock };
     currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
-    currentProps.entityProps.service.delete = deleteMock;
 
     const wrapper = mount(
       <BrowserRouter>
-        <DependentEntityListFull.WrappedComponent {...currentProps} />)
+        <DependentEntityList {...currentProps} />
       </BrowserRouter>
     );
-
     await wrapper.instance().componentDidMount();
-    wrapper.update();
-    wrapper.find('table td').at(1).find('ButtonLink').simulate('click');
-    expect(wrapper.find('Modal').length).toBe(1);
-    wrapper.find('Modal .modal-footer button').at(1).simulate('click');
-    expect(deleteMock).toHaveBeenCalledTimes(1);
+    await wrapper.update();
+
+    expect(wrapper.find('ButtonLink').at(1).text()).toBe('Delete');
+    wrapper.find('ButtonLink').at(1).simulate('click');
+    expect(onClickDeleteButtonMock).toHaveBeenCalledTimes(1);
+    expect(openModalMock).toHaveBeenCalledTimes(2);
+    expect(openModalMock).toBeCalledWith(1);
   });
 
-  it('should call close alert handler on update', async () => {
-    const currentProps = { ...props };
-    currentProps.entityProps.service.getByCustomerId = () =>
+  it('should not delete button open a delete modal for the last entity', async () => {
+    const getByCustomerIdMock = () =>
       Promise.resolve([{ noteId: 1, customerId: 2, noteText: 'Note1' }]);
-    currentProps.isModalOpen = false;
-    currentProps.openModal = () => () => {};
-    currentProps.showAlert = () => {};
-    currentProps.onClickModalCancelButton = () => {};
-    currentProps.onClickModalDeleteButton = () => {};
-    const closeAlertMock = jest.fn(() => {});
-    currentProps.closeAlert = closeAlertMock;
+    const onClickDeleteButtonMock = jest.fn(() => {});
+    const openModalMock = jest.fn(() => onClickDeleteButtonMock);
+    const currentProps = { ...props, openModal: openModalMock };
+    currentProps.entityProps.service.getByCustomerId = getByCustomerIdMock;
 
-    const wrapper = shallow(<DependentEntityList {...currentProps} />);
-    wrapper.instance().state.isLoaded = false;
-    wrapper.instance().state.isLoading = false;
-    wrapper.setProps({});
+    const wrapper = mount(
+      <BrowserRouter>
+        <DependentEntityList {...currentProps} />
+      </BrowserRouter>
+    );
+    await wrapper.instance().componentDidMount();
+    await wrapper.update();
 
-    expect(closeAlertMock).toHaveBeenCalledTimes(1);
+    expect(wrapper.find('ButtonLink').at(1).text()).toBe('Delete');
+    wrapper.find('ButtonLink').at(1).simulate('click');
+    expect(onClickDeleteButtonMock).toHaveBeenCalledTimes(0);
+    expect(openModalMock).toHaveBeenCalledTimes(1);
+    expect(openModalMock).toBeCalledWith(1);
   });
 });
