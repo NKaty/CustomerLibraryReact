@@ -1,10 +1,6 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { BrowserRouter } from 'react-router-dom';
-import NoteForm from '../../notes/NoteForm';
-import DependentEntityCreateEditFormFull, {
-  DependentEntityCreateEditForm,
-} from '../DependentEntityCreateEditForm';
+import { DependentEntityCreateEditForm } from '../DependentEntityCreateEditForm';
 
 describe('DependentEntityCreateEditForm', () => {
   afterEach(() => {
@@ -12,55 +8,83 @@ describe('DependentEntityCreateEditForm', () => {
     jest.restoreAllMocks();
   });
 
-  const props = {
-    match: { params: { customerId: 2, noteId: 1 } },
-    entityProps: {
-      validationSchema: {},
-      initialState: { noteText: '', noteId: 0, customerId: 0 },
-      formTitle: 'Note Form',
-      idName: 'noteId',
-      form: props => <NoteForm {...props} />,
-      service: {
-        getById: () => Promise.resolve({}),
-        create: () => Promise.resolve({}),
-        update: () => Promise.resolve({}),
+  let props;
+  beforeEach(() => {
+    const MockedForm = () => null;
+    props = {
+      match: { params: { customerId: 2, noteId: 1 } },
+      showAlert: () => {},
+      closeAlert: () => {},
+      onClickCancelButton: () => {},
+      onSubmit: () => {},
+      entityProps: {
+        initialState: { noteText: '', noteId: 0, customerId: 0 },
+        formTitle: 'Note Form',
+        idName: 'noteId',
+        form: props => <MockedForm {...props} />,
+        service: {
+          getById: () => Promise.resolve({}),
+          create: () => Promise.resolve({}),
+          update: () => Promise.resolve({}),
+        },
       },
-    },
-  };
-
-  it('should render a form', () => {
-    const currentProps = {
-      ...props,
-      match: { params: { customerId: 2, noteId: 0 } },
     };
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityCreateEditFormFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
-    );
-
-    expect(wrapper.find('NoteForm').length).toBe(1);
-    expect(wrapper.find('CreateEditSubmitButtonGroup').length).toBe(1);
-    wrapper.unmount();
   });
 
-  it('should render a form in create mode', () => {
+  it('should render a form', async () => {
     const currentProps = {
       ...props,
       match: { params: { customerId: 2, noteId: 0 } },
     };
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityCreateEditFormFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
-    );
+    const wrapper = mount(<DependentEntityCreateEditForm {...currentProps} />);
 
-    expect(
-      wrapper.find('DependentEntityCreateEditForm').instance().state.entity
-        .noteText
-    ).toBe('');
-    expect(wrapper.find('NoteForm').length).toBe(1);
-    wrapper.unmount();
+    expect(wrapper.find('MockedForm').length).toBe(1);
+    expect(wrapper.find('CreateEditSubmitButtonGroup').length).toBe(1);
+  });
+
+  it('should render a form in create mode', async () => {
+    const currentProps = {
+      ...props,
+      match: { params: { customerId: 2, noteId: 0 } },
+    };
+    const wrapper = shallow(
+      <DependentEntityCreateEditForm {...currentProps} />
+    );
+    await wrapper.update();
+
+    expect(wrapper.instance().state).toStrictEqual({
+      entity: {
+        noteText: '',
+        customerId: 2,
+        noteId: 0,
+      },
+      isLoading: false,
+      isLoaded: true,
+    });
+  });
+
+  it('should render a form in create mode if there is no data from server', async () => {
+    const getByIdMock = () => Promise.resolve();
+    const currentProps = {
+      ...props,
+      match: { params: { customerId: 2, noteId: 1 } },
+    };
+    currentProps.entityProps.service.getById = getByIdMock;
+
+    const wrapper = shallow(
+      <DependentEntityCreateEditForm {...currentProps} />
+    );
+    await wrapper.update();
+
+    expect(wrapper.instance().state).toStrictEqual({
+      entity: {
+        noteText: '',
+        customerId: 2,
+        noteId: 0,
+      },
+      isLoading: false,
+      isLoaded: true,
+    });
   });
 
   it('should render a form in edit mode', async () => {
@@ -69,67 +93,66 @@ describe('DependentEntityCreateEditForm', () => {
     const currentProps = { ...props };
     currentProps.entityProps.service.getById = getByIdMock;
 
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityCreateEditFormFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
+    const wrapper = shallow(
+      <DependentEntityCreateEditForm {...currentProps} />
     );
-    await wrapper.instance().componentDidMount();
-    wrapper.update();
+    await wrapper.update();
 
-    expect(
-      wrapper.find('DependentEntityCreateEditForm').instance().state.entity
-        .noteText
-    ).toBe('Note1');
-    expect(wrapper.find('NoteForm').length).toBe(1);
-    wrapper.unmount();
+    expect(wrapper.instance().state).toStrictEqual({
+      entity: {
+        noteText: 'Note1',
+        customerId: 2,
+        noteId: 1,
+      },
+      isLoading: false,
+      isLoaded: true,
+    });
   });
 
   it('should render an error message from server', async () => {
     const getByIdMock = () =>
       Promise.resolve({ error: true, errorTitle: 'Test' });
-    const currentProps = { ...props };
+    const showAlertMock = jest.fn(() => {});
+    const currentProps = { ...props, showAlert: showAlertMock };
     currentProps.entityProps.service.getById = getByIdMock;
 
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityCreateEditFormFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
+    const wrapper = shallow(
+      <DependentEntityCreateEditForm {...currentProps} />
     );
-    await wrapper.instance().componentDidMount();
-    wrapper.update();
+    await wrapper.update();
 
-    expect(wrapper.find('Alert').length).toBe(1);
-    expect(wrapper.find('Alert').text()).toBe('Test');
-    wrapper.unmount();
+    expect(showAlertMock).toHaveBeenCalledTimes(1);
+    expect(showAlertMock).toBeCalledWith('Test', 'error');
   });
 
-  it('should render a error message on invalid customerId', () => {
+  it('should render a error message on invalid customerId', async () => {
+    const showAlertMock = jest.fn(() => {});
     const currentProps = {
       ...props,
       match: { params: { customerId: 'id', noteId: 0 } },
+      showAlert: showAlertMock,
     };
-    const wrapper = mount(
-      <BrowserRouter>
-        <DependentEntityCreateEditFormFull.WrappedComponent {...currentProps} />
-      </BrowserRouter>
-    );
 
-    expect(wrapper.find('Alert').length).toBe(1);
-    expect(wrapper.find('Alert').text()).toBe('Customer is not found.');
-    wrapper.unmount();
+    const wrapper = shallow(
+      <DependentEntityCreateEditForm {...currentProps} />
+    );
+    await wrapper.update();
+
+    expect(showAlertMock).toHaveBeenCalledTimes(1);
+    expect(showAlertMock).toBeCalledWith('Customer is not found.', 'error');
   });
 
-  it('should call close alert handler on update', () => {
+  it('should call close alert handler and getById on update', () => {
+    const getByIdMock = jest.fn(() =>
+      Promise.resolve({ noteId: 1, customerId: 2, noteText: 'Note1' })
+    );
+    const closeAlertMock = jest.fn(() => {});
     const currentProps = {
       ...props,
-      match: { params: { customerId: 2, noteId: 0 } },
+      match: { params: { customerId: 2, noteId: 1 } },
+      closeAlert: closeAlertMock,
     };
-    currentProps.onClickCancelButton = () => {};
-    currentProps.onSubmit = () => {};
-    currentProps.showAlert = () => {};
-    const closeAlertMock = jest.fn(() => {});
-    currentProps.closeAlert = closeAlertMock;
+    currentProps.entityProps.service.getById = getByIdMock;
 
     const wrapper = shallow(
       <DependentEntityCreateEditForm {...currentProps} />
@@ -139,7 +162,52 @@ describe('DependentEntityCreateEditForm', () => {
     wrapper.instance().state.isLoading = false;
     wrapper.setProps({});
     expect(closeAlertMock).toHaveBeenCalledTimes(1);
+    expect(getByIdMock).toHaveBeenCalledTimes(2);
+  });
 
-    wrapper.unmount();
+  it('should not call close alert handler and getById on update if isLoaded is true', () => {
+    const getByIdMock = jest.fn(() =>
+      Promise.resolve({ noteId: 1, customerId: 2, noteText: 'Note1' })
+    );
+    const closeAlertMock = jest.fn(() => {});
+    const currentProps = {
+      ...props,
+      match: { params: { customerId: 2, noteId: 1 } },
+      closeAlert: closeAlertMock,
+    };
+    currentProps.entityProps.service.getById = getByIdMock;
+
+    const wrapper = shallow(
+      <DependentEntityCreateEditForm {...currentProps} />
+    );
+
+    wrapper.instance().state.isLoaded = true;
+    wrapper.instance().state.isLoading = false;
+    wrapper.setProps({});
+    expect(closeAlertMock).toHaveBeenCalledTimes(0);
+    expect(getByIdMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not call close alert handler and getById on update if isLoading is true', () => {
+    const getByIdMock = jest.fn(() =>
+      Promise.resolve({ noteId: 1, customerId: 2, noteText: 'Note1' })
+    );
+    const closeAlertMock = jest.fn(() => {});
+    const currentProps = {
+      ...props,
+      match: { params: { customerId: 2, noteId: 1 } },
+      closeAlert: closeAlertMock,
+    };
+    currentProps.entityProps.service.getById = getByIdMock;
+
+    const wrapper = shallow(
+      <DependentEntityCreateEditForm {...currentProps} />
+    );
+
+    wrapper.instance().state.isLoaded = false;
+    wrapper.instance().state.isLoading = true;
+    wrapper.setProps({});
+    expect(closeAlertMock).toHaveBeenCalledTimes(0);
+    expect(getByIdMock).toHaveBeenCalledTimes(1);
   });
 });

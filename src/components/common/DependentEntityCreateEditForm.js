@@ -40,6 +40,8 @@ export class DependentEntityCreateEditForm extends Component {
     const entityId = this.getIdParam(entityProps.idName);
     if (entityId !== 0) {
       return this.getData(entityId);
+    } else {
+      this.setState({ isLoading: false, isLoaded: true });
     }
   }
 
@@ -56,6 +58,8 @@ export class DependentEntityCreateEditForm extends Component {
           isLoading: false,
           isLoaded: true,
         });
+      } else {
+        this.setState({ isLoading: false, isLoaded: true });
       }
     });
   }
