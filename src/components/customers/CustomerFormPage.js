@@ -15,13 +15,13 @@ import customerInitialState from '../../initialStates/customer.initialState';
 import addressInitialState from '../../initialStates/address.initialState';
 import { convertNullToEmptyString } from '../../utils/convertNullableFields';
 
-class CustomerFormPage extends Component {
+export class CustomerFormPage extends Component {
   state = {
     customer: customerInitialState,
     notesStartLength: 1,
     addressesStartLength: 1,
-    isLoading: true,
-    isLoaded: false,
+    isLoading: !!this.getCustomerId(),
+    isLoaded: !this.getCustomerId(),
   };
 
   componentDidMount() {
@@ -39,34 +39,6 @@ class CustomerFormPage extends Component {
     const customerId = this.getCustomerId();
     if (customerId !== 0) {
       this.getData(customerId);
-    } else {
-      if (!this.state.customer.notes.length) {
-        this.setState(prevState => ({
-          customer: {
-            ...prevState.customer,
-            notes: [
-              {
-                ...noteInitialState,
-                customerId: prevState.customer.customerId,
-              },
-            ],
-          },
-        }));
-      }
-
-      if (!this.state.customer.addresses.length) {
-        this.setState(prevState => ({
-          customer: {
-            ...prevState.customer,
-            addresses: [
-              {
-                ...addressInitialState,
-                customerId: prevState.customer.customerId,
-              },
-            ],
-          },
-        }));
-      }
     }
   }
 
@@ -78,11 +50,13 @@ class CustomerFormPage extends Component {
       } else if (data) {
         this.setState({
           customer: convertNullToEmptyString(data),
-          notesStartLength: data.notes.length,
-          addressesStartLength: data.addresses.length,
+          notesStartLength: data.notes?.length,
+          addressesStartLength: data.addresses?.length,
           isLoading: false,
           isLoaded: true,
         });
+      } else {
+        this.setState({ isLoading: false, isLoaded: true });
       }
     });
   }
@@ -123,28 +97,24 @@ class CustomerFormPage extends Component {
 
               const onClickRemoveEntity = event => {
                 event.preventDefault();
-                if (entities.length > startLength) {
+                if (entities?.length > startLength) {
                   arrayHelpers.pop();
-                } else {
-                  this.props.showAlert(
-                    `Cannot remove the last ${entityName}.`,
-                    'error'
-                  );
                 }
               };
 
               return (
                 <>
-                  {entities.map((note, index) => (
-                    <div key={index}>
-                      {subTitle && <h5>{subTitle}</h5>}
-                      {subForm({
-                        namespace: { property: propertyName, index },
-                        errors,
-                        touched,
-                      })}
-                    </div>
-                  ))}
+                  {entities &&
+                    entities.map((note, index) => (
+                      <div key={index}>
+                        {subTitle && <h5>{subTitle}</h5>}
+                        {subForm({
+                          namespace: { property: propertyName, index },
+                          errors,
+                          touched,
+                        })}
+                      </div>
+                    ))}
                   <div className="text-end">
                     <button
                       className="btn btn-secondary me-2 btn-fix-width"
