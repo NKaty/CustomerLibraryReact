@@ -14,8 +14,13 @@ export class DependentEntityCreateEditForm extends Component {
       ...this.props.entityProps.initialState,
       customerId: this.getIdParam('customerId'),
     },
-    isLoading: true,
-    isLoaded: false,
+    isLoading:
+      !!this.getIdParam('customerId') &&
+      !!this.getIdParam(this.props.entityProps.idName),
+    isLoaded: !(
+      !!this.getIdParam('customerId') &&
+      !!this.getIdParam(this.props.entityProps.idName)
+    ),
   };
 
   componentDidMount() {
@@ -33,15 +38,12 @@ export class DependentEntityCreateEditForm extends Component {
     const { entityProps, showAlert } = this.props;
 
     if (this.state.entity.customerId === 0) {
-      this.setState({ isLoading: false, isLoaded: true });
       return showAlert('Customer is not found.', 'error');
     }
 
     const entityId = this.getIdParam(entityProps.idName);
     if (entityId !== 0) {
       return this.getData(entityId);
-    } else {
-      this.setState({ isLoading: false, isLoaded: true });
     }
   }
 

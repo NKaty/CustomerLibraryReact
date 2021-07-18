@@ -210,4 +210,25 @@ describe('DependentEntityCreateEditForm', () => {
     expect(closeAlertMock).toHaveBeenCalledTimes(0);
     expect(getByIdMock).toHaveBeenCalledTimes(1);
   });
+
+  it('should call only close alert handler on update', () => {
+    const getByIdMock = jest.fn(() => {});
+    const closeAlertMock = jest.fn(() => {});
+    const currentProps = {
+      ...props,
+      match: { params: { customerId: 0, noteId: 0 } },
+      closeAlert: closeAlertMock,
+    };
+    currentProps.entityProps.service.getById = getByIdMock;
+
+    const wrapper = shallow(
+      <DependentEntityCreateEditForm {...currentProps} />
+    );
+
+    wrapper.instance().state.isLoaded = false;
+    wrapper.instance().state.isLoading = false;
+    wrapper.setProps({});
+    expect(closeAlertMock).toHaveBeenCalledTimes(1);
+    expect(getByIdMock).toHaveBeenCalledTimes(0);
+  });
 });
