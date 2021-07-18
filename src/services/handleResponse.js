@@ -1,6 +1,6 @@
 function handleResponse(url, requestOptions) {
   let error = false;
-  return fetch(url, requestOptions)
+  return fetch(`${process.env.SERVER_URL}${url}`, requestOptions)
     .then(response => {
       error = !response.ok;
       return response.text();
