@@ -21,7 +21,7 @@ const addressSchema = Yup.object().shape({
     .required('The field is required.')
     .max(6, 'The field length must be at most 6 characters long.'),
   state: Yup.string()
-    .required()
+    .required('The field is required.')
     .max(20, 'The field length must be at most 20 characters long.'),
   country: Yup.string()
     .required('The field is required.')

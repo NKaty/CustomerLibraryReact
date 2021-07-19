@@ -7,7 +7,7 @@ import customerInitialState from '../../../initialStates/customer.initialState';
 
 jest.mock('../../../services/customer.service');
 
-describe('DependentEntityCreateEditForm', () => {
+describe('CustomerFormPage', () => {
   afterEach(() => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
